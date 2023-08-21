@@ -3239,6 +3239,65 @@ namespace BlockC_Api.Classes
             }
         }
 
+        public Boolean DesativarEmpresa(long EmpresaID)
+        {
+            Boolean retorno = true;
+
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Desativar_Empresa", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("EmpresaID", EmpresaID);
+                        varComm.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RegistrarErro("Server API", "Database.cs", "DesativarEmpresa", ex.Message, string.Empty);
+                retorno = false;
+            }
+
+            return retorno;
+        }
+
+        public Boolean ValidaEmpresaUsuario(long EmpresaID, long UsuarioID)
+        {
+            Boolean retorno = true;
+
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Validar_Empresa_Usuario", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("EmpresaID", EmpresaID);
+                        varComm.Parameters.AddWithValue("UsuarioID", UsuarioID);
+
+                        using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
+                        {
+                            retorno = myReader.HasRows;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RegistrarErro("Server API", "Database.cs", "ValidaEmpresaUsuario", ex.Message, string.Empty);
+                retorno = false;
+            }
+
+            return retorno;
+        }
+
 
     }
 }

@@ -211,6 +211,7 @@
     <Compile Include="Classes\Json\NewTokenResponse.cs" />
     <Compile Include="Classes\Json\RecoverPasswordRequest.cs" />
     <Compile Include="Classes\Json\RecoverPasswordResponse.cs" />
+    <Compile Include="Classes\Json\RemoveCompanyRequest.cs" />
     <Compile Include="Classes\Json\SearchRegistryRequest.cs" />
     <Compile Include="Classes\Json\UpdateEmissionRequest.cs" />
     <Compile Include="Classes\Json\UpdateEntryRequest.cs" />
@@ -247,6 +248,7 @@
     <Compile Include="Controllers\v1\LogoutUserController.cs" />
     <Compile Include="Controllers\v1\NewTokenController.cs" />
     <Compile Include="Controllers\v1\RecoverPasswordController.cs" />
+    <Compile Include="Controllers\v1\RemoveCompanyController.cs" />
     <Compile Include="Controllers\v1\SearchRegistryController.cs" />
     <Compile Include="Controllers\v1\UpdateEmissionController.cs" />
     <Compile Include="Controllers\v1\UpdateRegistryController.cs" />
@@ -341,6 +343,7 @@
     <Folder Include="Views\LogoutUser\" />
     <Folder Include="Views\NewToken\" />
     <Folder Include="Views\RecoverPassword\" />
+    <Folder Include="Views\RemoveCompany\" />
     <Folder Include="Views\SearchRegistry\" />
     <Folder Include="Views\UpdateEmission\" />
     <Folder Include="Views\UpdateRegistry\" />
