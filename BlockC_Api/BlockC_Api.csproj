@@ -216,6 +216,8 @@
     <Compile Include="Classes\Json\UpdateEmissionRequest.cs" />
     <Compile Include="Classes\Json\UpdateEntryRequest.cs" />
     <Compile Include="Classes\Json\UpdateEntryResponse.cs" />
+    <Compile Include="Classes\Json\UpdateUserCompaniesRequest.cs" />
+    <Compile Include="Classes\Json\UpdateUserCompaniesResponse.cs" />
     <Compile Include="Classes\Mail.cs" />
     <Compile Include="Classes\Utilitario.cs" />
     <Compile Include="Classes\Variaveis.cs" />
@@ -252,6 +254,7 @@
     <Compile Include="Controllers\v1\SearchRegistryController.cs" />
     <Compile Include="Controllers\v1\UpdateEmissionController.cs" />
     <Compile Include="Controllers\v1\UpdateRegistryController.cs" />
+    <Compile Include="Controllers\v1\UpdateUserCompaniesController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -347,6 +350,7 @@
     <Folder Include="Views\SearchRegistry\" />
     <Folder Include="Views\UpdateEmission\" />
     <Folder Include="Views\UpdateRegistry\" />
+    <Folder Include="Views\UpdateUserCompanies\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />

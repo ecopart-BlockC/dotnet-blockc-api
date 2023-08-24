@@ -3298,6 +3298,64 @@ namespace BlockC_Api.Classes
             return retorno;
         }
 
+        public Boolean AdicionarUsuarioEmpresa(long UserID, long CompanyID, ref string mensagem)
+        {
+            Boolean retorno = true;
+
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Gravar_EmpresaUsuario", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("varEmpresaID", CompanyID);
+                        varComm.Parameters.AddWithValue("varUsuarioID", UserID);
+                        varComm.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RegistrarErro("Server API", "Database.cs", "AdicionarUsuarioEmpresa", ex.Message, string.Empty);
+                retorno = false;
+                mensagem = ex.Message;
+            }
+
+            return retorno;
+        }
+
+        public Boolean DesativarUsuarioEmpresa(long UserID, long CompanyID, ref string mensagem)
+        {
+            Boolean retorno = true;
+
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Desativar_EmpresaUsuario", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("varEmpresaID", CompanyID);
+                        varComm.Parameters.AddWithValue("varUsuarioID", UserID);
+                        varComm.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RegistrarErro("Server API", "Database.cs", "DesativarUsuarioEmpresa", ex.Message, string.Empty);
+                retorno = false;
+                mensagem = ex.Message;
+            }
+
+            return retorno;
+        }
+
 
     }
 }
