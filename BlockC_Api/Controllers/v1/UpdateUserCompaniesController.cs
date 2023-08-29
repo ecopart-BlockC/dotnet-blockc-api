@@ -55,7 +55,7 @@ namespace BlockC_Api.Controllers.v1
                     return response;
                 }
 
-                if (companyRequest.AddCompaniesList == null || companyRequest.RemoveCompaniesList == null)
+                if (companyRequest.AddCompaniesList == null && companyRequest.RemoveCompaniesList == null)
                 {
                     genericResponse.mensagem = "A requisição não possui nenhuma empresa para adicionar ou remover";
                     jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
@@ -89,7 +89,7 @@ namespace BlockC_Api.Controllers.v1
 
                         if (!database.AdicionarUsuarioEmpresa(companyRequest.UserID, addCompany.CompanyID, ref mensagem))
                         {
-                            company.Status = mensagem;
+                            company.Status = "Não foi possível relacionar a empresa ao usuário";
                         }
 
                         companyResponse.AddCompaniesList.Add(company);
@@ -110,7 +110,7 @@ namespace BlockC_Api.Controllers.v1
 
                         if (!database.DesativarUsuarioEmpresa(companyRequest.UserID, delCompany.CompanyID, ref mensagem))
                         {
-                            company.Status = mensagem;
+                            company.Status = "Não foi possível desassociar a empresa do usuário";
                         }
 
                         companyResponse.RemoveCompaniesList.Add(company);

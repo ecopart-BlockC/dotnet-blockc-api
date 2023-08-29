@@ -57,12 +57,13 @@ namespace BlockC_Api.Controllers.v1
                     return response;
                 }
 
+                string mensagem = string.Empty;
                 Classes.Json.GetUserCompanyResponse userCompanyResponse = new GetUserCompanyResponse(); 
-                if (!database.BuscarEmpresaUsuario(userCompanyRequest.UserID, ref userCompanyResponse))
+                if (!database.BuscarEmpresaUsuario(userCompanyRequest.UserID, ref userCompanyResponse, ref mensagem))
                 {
-                    genericResponse.mensagem = "Não foi possível buscar as informações do usuário";
+                    genericResponse.mensagem = mensagem;
                     jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
-                    response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
+                    response = Request.CreateResponse(System.Net.HttpStatusCode.InternalServerError);
                     response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
                     return response;
                 }

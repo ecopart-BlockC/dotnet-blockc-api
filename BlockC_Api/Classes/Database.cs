@@ -692,7 +692,7 @@ namespace BlockC_Api.Classes
             return retorno;
         }
 
-        public Boolean BuscarEmpresaUsuario(long userID, ref Classes.Json.GetUserCompanyResponse userCompanyResponse)
+        public Boolean BuscarEmpresaUsuario(long userID, ref Classes.Json.GetUserCompanyResponse userCompanyResponse, ref string mensagem)
         {
             Boolean retorno = true;
 
@@ -709,7 +709,11 @@ namespace BlockC_Api.Classes
 
                         using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
                         {
-                            if (!myReader.HasRows) return false;
+                            if (!myReader.HasRows)
+                            {
+                                mensagem = "Não há empresas relacionadas ao usuário";
+                                return false;
+                            }
 
                             Classes.Json.GetUserCompanyList companies = new GetUserCompanyList();
                             Classes.Json.BranchesList branches = new BranchesList();
@@ -749,6 +753,7 @@ namespace BlockC_Api.Classes
             {
                 RegistrarErro("Server API", "Database.cs", "BuscarEmpresaUsuario", ex.Message, string.Empty);
                 retorno = false;
+                mensagem = "Não foi possível verificar as empresas relacionadas ao usuário";
             }
 
             return retorno;
