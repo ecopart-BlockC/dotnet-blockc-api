@@ -945,7 +945,7 @@ namespace BlockC_Api.Classes
                 {
                     varConn.Open();
 
-                    using (SqlCommand varComm = new SqlCommand("usp_Buscar_EmpresaUsuario_Usuario", varConn))
+                    using (SqlCommand varComm = new SqlCommand("usp_Buscar_EmpresaFilial_Usuario", varConn))
                     {
                         varComm.CommandType = System.Data.CommandType.StoredProcedure;
                         varComm.Parameters.AddWithValue("UsuarioID", UsuarioID);
@@ -3176,6 +3176,19 @@ namespace BlockC_Api.Classes
                 {
                     FieldName = "ValorEficFerv";
                 }
+                else if (FieldName == "input_qnt_func")
+                {
+                    FieldName = "ValorColab";
+                }
+                else if (FieldName == "input_qnt_comb")
+                {
+                    FieldName = "ValorQtdComb";
+                }
+                else if (FieldName == "input_qnt_dias")
+                {
+                    FieldName = "ValorDias";
+                }
+
 
                 using (SqlConnection varConn = new SqlConnection(connString))
                 {
