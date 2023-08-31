@@ -3126,7 +3126,7 @@ namespace BlockC_Api.Classes
                 {
                     FieldName = "ValorAnoFrota";
                 }
-                else if (FieldName == "input_qtd_colab")
+                else if (FieldName == "input_qtd_colab" || FieldName == "input_qnt_func")
                 {
                     FieldName = "ValorColab";
                 }
@@ -3138,7 +3138,7 @@ namespace BlockC_Api.Classes
                 {
                     FieldName = "ValorTrecho";
                 }
-                else if (FieldName == "input_mwh")
+                else if (FieldName == "input_mwh" || FieldName == "input_qnt_elet")
                 {
                     FieldName = "ValorMwh";
                 }                
