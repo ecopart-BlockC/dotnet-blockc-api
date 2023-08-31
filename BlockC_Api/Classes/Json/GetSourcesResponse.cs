@@ -48,6 +48,9 @@ namespace BlockC_Api.Classes.Json
         [JsonProperty("fuelName")]
         public string FuelName { get; set; }
 
+        [JsonProperty("sourceType")]
+        public string SourceType { get; set; }
+
 
         //
         //

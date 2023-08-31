@@ -70,8 +70,12 @@ namespace BlockC_Api.Controllers.v1
                 if (sourceRequest.Escopo > 0)
                     escopo = sourceRequest.Escopo;
 
+                string tipoDado = string.Empty;
+                if (sourceRequest.TipoDado != null)
+                    tipoDado = sourceRequest.TipoDado;
+
                 Classes.Json.GetSourcesResponse sourcesResponse = new Classes.Json.GetSourcesResponse();
-                if (!database.BuscarFontes(ref sourcesResponse, escopo, sourceRequest.CategoriaID, sourceRequest.SubCategoriaID, sourceRequest.EmpresaID))
+                if (!database.BuscarFontes(ref sourcesResponse, escopo, sourceRequest.CategoriaID, sourceRequest.SubCategoriaID, sourceRequest.EmpresaID, tipoDado))
                 {
                     genericResponse.mensagem = "Não conseguimos buscar as Fontes cadastradas";
                     jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();

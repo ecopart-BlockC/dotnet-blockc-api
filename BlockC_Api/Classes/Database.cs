@@ -2264,7 +2264,7 @@ namespace BlockC_Api.Classes
             return retorno;
         }
 
-        public Boolean BuscarFontes(ref Classes.Json.GetSourcesResponse sourcesResponse, int Escopo, int CategoriaID, int SubCategoriaID, int EmpresaID)
+        public Boolean BuscarFontes(ref Classes.Json.GetSourcesResponse sourcesResponse, int Escopo, int CategoriaID, int SubCategoriaID, int EmpresaID, string tipoDado)
         {
             Boolean retorno = true;
 
@@ -2281,6 +2281,7 @@ namespace BlockC_Api.Classes
                         varComm.Parameters.AddWithValue("CategoriaID", CategoriaID);
                         varComm.Parameters.AddWithValue("SubCategoriaID", SubCategoriaID);
                         varComm.Parameters.AddWithValue("EmpresaID", EmpresaID);
+                        varComm.Parameters.AddWithValue("TipoDado", tipoDado);
 
                         using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
                         {
@@ -2300,6 +2301,7 @@ namespace BlockC_Api.Classes
                                 source.CountryID = myReader["CountryID"].ToString();
                                 source.Country = myReader["Country"].ToString();
                                 source.FuelName = myReader["FuelName"].ToString();
+                                source.SourceType = myReader["SourceType"].ToString();
                                 //source.pci_tj_gg = Convert.ToDouble(myReader["pci_tj_gg"].ToString());
                                 //source.dens_kg_un = Convert.ToDouble(myReader["dens_kg_un"].ToString());
                                 //source.biocomb_perc = Convert.ToDouble(myReader["biocomb_perc"].ToString());

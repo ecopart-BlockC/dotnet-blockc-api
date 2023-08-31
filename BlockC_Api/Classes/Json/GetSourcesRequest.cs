@@ -23,5 +23,8 @@ namespace BlockC_Api.Classes.Json
         [JsonProperty("companyId")]
         public int EmpresaID { get; set; }
 
+        [JsonProperty("sourceType", NullValueHandling = NullValueHandling.Ignore)]
+        public string TipoDado { get; set; }
+
     }
 }
