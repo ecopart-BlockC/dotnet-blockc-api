@@ -85,6 +85,15 @@ namespace BlockC_Api.Controllers.v1
                     return response;
                 }
 
+                if (database.VerificarLancamentosEmpresa(companyRequest.EmpresaID))
+                {
+                    genericResponse.mensagem = "Não é possível excluir a empresa, pois existem registros associados";
+                    jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
+                    response = Request.CreateResponse(System.Net.HttpStatusCode.Unauthorized);
+                    response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
+                    return response;
+                }
+
                 if (!database.DesativarEmpresa(companyRequest.EmpresaID))
                 {
                     genericResponse.mensagem = "Não foi possível desativar a empresa informada";

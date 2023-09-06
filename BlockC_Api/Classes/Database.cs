@@ -47,7 +47,7 @@ namespace BlockC_Api.Classes
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             { }
         }
 
@@ -1539,7 +1539,7 @@ namespace BlockC_Api.Classes
                 query += "WHERE ";
                 query += "    lanc.Ativo = 1 ";
                 query += "    AND emp.Ativo = 1 ";
-                query += "    AND lanc.EmpresaID IN (SELECT EmpresaID FROM tbl_empresa_usuario WHERE UsuarioID = " + usuarioID + ") ";
+                query += "    AND lanc.EmpresaID IN (SELECT empu.EmpresaID FROM tbl_empresa_usuario empu INNER JOIN tbl_empresa emp2 ON empu.EmpresaID = emp2.ID WHERE emp2.Ativo = 1 AND empu.UsuarioID = " + usuarioID + ") ";
 
                 if (!string.IsNullOrEmpty(filtroNomeDocumento))
                 {
@@ -3371,6 +3371,43 @@ namespace BlockC_Api.Classes
                 RegistrarErro("Server API", "Database.cs", "DesativarUsuarioEmpresa", ex.Message, string.Empty);
                 retorno = false;
                 mensagem = ex.Message;
+            }
+
+            return retorno;
+        }
+
+        public Boolean VerificarLancamentosEmpresa(long CompanyID)
+        {
+            Boolean retorno = true;
+
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Buscar_Lancamento_Empresa", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("varEmpresaID", CompanyID);
+
+                        using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
+                        {
+                            if (!myReader.HasRows)
+                                return false;
+
+                            myReader.Read();
+                            Int64.TryParse(myReader["TotalRegistros"].ToString(), out long registros);
+
+                            if (registros <= 0) return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RegistrarErro("Server API", "Database.cs", "VerificarLancamentosEmpresa", ex.Message, string.Empty);
+                retorno = false;
             }
 
             return retorno;
