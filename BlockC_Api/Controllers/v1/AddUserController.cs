@@ -124,7 +124,7 @@ namespace BlockC_Api.Controllers.v1
                     mailThread.IsBackground = true;
                     mailThread.Start();
 
-                    mensagem = "Seu cadastro foi realizado e submetido à aprovação." + Environment.NewLine;
+                    mensagem = string.Concat("Olá ", addUserRequest.Nome, " ", addUserRequest.Sobrenome, "(", addUserRequest.Email, ")") + " cadastro foi realizado e submetido à aprovação." + Environment.NewLine;
                     mensagem += "Em até 2 dias úteis você receberá um aviso, em seu e-mail, sobre seu cadastro." + Environment.NewLine;
                     mensagem += "" + Environment.NewLine;
                     mensagem += "Obrigado" + Environment.NewLine;

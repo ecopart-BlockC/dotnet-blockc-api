@@ -51,18 +51,6 @@ namespace BlockC_Api.Classes.Json
         [JsonProperty("refferedMonth", NullValueHandling = NullValueHandling.Ignore)]
         public int ReferenceMonth { get; set; }
 
-        //[JsonProperty("documentType", NullValueHandling = NullValueHandling.Ignore)]
-        //public string DocumentType { get; set; }
-
-        //[JsonProperty("documentImage", NullValueHandling = NullValueHandling.Ignore)]
-        //public string DocumentImage { get; set; }
-
-        //[JsonProperty("documentName", NullValueHandling = NullValueHandling.Ignore)]
-        //public string DocumentName { get; set; }
-
-        //[JsonProperty("documentContentType", NullValueHandling = NullValueHandling.Ignore)]
-        //public string DocumentContentType { get; set; }
-
         [JsonProperty("documents", NullValueHandling = NullValueHandling.Ignore)]
         public List<RegistryDocuments> Documents { get; set; }
 
