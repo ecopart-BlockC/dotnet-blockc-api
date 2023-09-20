@@ -1531,6 +1531,7 @@ namespace BlockC_Api.Classes
                 query += "    , lanc.FonteID AS EntrySourceID ";
                 query += "    , (SELECT Nome FROM tbl_fonte WHERE ID = lanc.FonteID) AS EntrySourceName ";
                 query += "    , (SELECT Combustivel FROM tbl_fonte WHERE ID = lanc.FonteID) AS EntryFuelName ";
+                query += "    , COALESCE((SELECT [calc_tco2e] FROM tbl_emissao_calc WHERE LancamentoID = lanc.ID), 0) AS ResultTco2e ";
                 query += "FROM ";
                 query += "    tbl_lancamento lanc ";                
                 query += "    LEFT OUTER JOIN tbl_lancamento_arquivo larq ON larq.LancamentoID = lanc.ID ";
@@ -1735,6 +1736,8 @@ namespace BlockC_Api.Classes
                                 item.RegisteredBy = myReader["EntryRegistradoPorNome"].ToString();
                                 item.ReferredMonth = Convert.ToInt32(myReader["EntryMesRef"].ToString());
                                 item.ReferredYear = Convert.ToInt32(myReader["EntryAnoRef"].ToString());
+
+                                item.ResultTco2e = myReader.GetDouble(myReader.GetOrdinal("ResultTco2e"));
 
                                 item.DocumentList = new List<RegistriesResponseCollection.Documents>();
                                 BuscarListRegistriesDocuments(myReader["EntryID"].ToString(), ref item);
@@ -3154,7 +3157,7 @@ namespace BlockC_Api.Classes
                     FieldName = "ValorTpfc";
                 else if (FieldName == "input_tsf6")
                     FieldName = "ValorTsf6";
-                else if (FieldName == "input_tnf3")
+                else if (FieldName == "input_tnf3" || FieldName == "input_tn3")
                     FieldName = "ValorTnf3";
                 else if (FieldName == "input_tco2e")
                     FieldName = "ValorTco2e";

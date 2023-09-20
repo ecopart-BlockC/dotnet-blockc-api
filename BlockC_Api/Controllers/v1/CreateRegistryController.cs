@@ -177,10 +177,8 @@ namespace BlockC_Api.Controllers.v1
                                 entryStatus = "FALHA";
                                 Classes.Database.RegistrarErro("Server API", "CreateRegistryController", "Post", "Não foi possível realizar os cálculos do lançamento " + entryID, _request.ToString());
                             }
-                            else
-                            {
-                                database.GravarEmissaoCalculoExpressoes(entryID);
-                            }
+
+                            database.GravarEmissaoCalculoExpressoes(entryID);
                         }
 
                         if (registry.Comments != null)

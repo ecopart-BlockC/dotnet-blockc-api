@@ -69,6 +69,9 @@ namespace BlockC_Api.Classes.Json
         [JsonProperty("fuelName")]
         public string FuelName { get; set; }
 
+        [JsonProperty("resultTco2e")]
+        public Double ResultTco2e { get; set; }
+
         [JsonProperty("customFields", NullValueHandling = NullValueHandling.Ignore)]
         public List<RegistryCustomFields> CustomFields { get; set; }
 
