@@ -24,31 +24,31 @@ namespace BlockC_Api.Classes.Json
         public int AnoReferencia { get; set; }
 
         [JsonProperty("tco2")]
-        public Double Tco2 { get; set; }
+        public Decimal Tco2 { get; set; }
 
         [JsonProperty("tch4")]
-        public Double Tch4 { get; set; }
+        public Decimal Tch4 { get; set; }
 
         [JsonProperty("tn2o")]
-        public Double Tn2o { get; set; }
+        public Decimal Tn2o { get; set; }
 
         [JsonProperty("tco2_bio")]
-        public Double Tco2_Bio { get; set; }
+        public Decimal Tco2_Bio { get; set; }
 
         [JsonProperty("thfc")]
-        public Double Thfc { get; set; }
+        public Decimal Thfc { get; set; }
 
         [JsonProperty("tpfc")]
-        public Double Tpfc { get; set; }
+        public Decimal Tpfc { get; set; }
 
         [JsonProperty("tsf6")]
-        public Double Tsf6 { get; set; }
+        public Decimal Tsf6 { get; set; }
 
         [JsonProperty("tnf3")]
-        public Double Tnf3 { get; set; }
+        public Decimal Tnf3 { get; set; }
 
         [JsonProperty("tco2e")]
-        public Double Tco2e { get; set; }
+        public Decimal Tco2e { get; set; }
     }
 
     public partial class ScopeTotals

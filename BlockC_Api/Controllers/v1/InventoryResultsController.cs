@@ -41,7 +41,7 @@ namespace BlockC_Api.Controllers.v1
                 {
                     genericResponse.mensagem = "Necessário informar todos os campos";
                     jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
-                    response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
+                    response = Request.CreateResponse(System.Net.HttpStatusCode.Unauthorized);
                     response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
                     return response;
                 }
@@ -51,23 +51,38 @@ namespace BlockC_Api.Controllers.v1
                 {
                     genericResponse.mensagem = "Token inválido";
                     jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
-                    response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
+                    response = Request.CreateResponse(System.Net.HttpStatusCode.Unauthorized);
                     response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
                     return response;
+                }
+
+                string[] filtroEmpresaID;
+                string[] filtroAno;
+                string[] filtroMes;
+
+                filtroEmpresaID = "".Split(',');
+                filtroAno = "".Split(',');
+                filtroMes = "".Split(',');
+
+                foreach (Classes.Json.InventoryResultsRequest.Filters filtro in inventoryRequest.Filtros)
+                {
+                    filtroEmpresaID = filtro.EmpresaID.Split(',');
+                    filtroAno = filtro.AnoReferencia.Split(',');
+                    filtroMes = filtro.MesReferencia.Split(',');
                 }
 
                 Classes.Json.InventoryResultsResponse resultsResponse = new Classes.Json.InventoryResultsResponse();
-                if (!database.BuscarEmissaoCalculosTotais(inventoryRequest.EmpresaID, inventoryRequest.AnoReferencia, ref resultsResponse))
+                if (!database.BuscarEmissaoCalculosTotais(inventoryRequest.UsuarioID, filtroEmpresaID, filtroAno, filtroMes, ref resultsResponse))
                 {
                     genericResponse.mensagem = "Não encontramos resultados para a requisição";
                     jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
-                    response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
+                    response = Request.CreateResponse(System.Net.HttpStatusCode.InternalServerError);
                     response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
                     return response;
                 }
 
-                database.BuscarEmissaoCalculosTotaisEscopo(inventoryRequest.EmpresaID, inventoryRequest.AnoReferencia, ref resultsResponse);
-                database.BuscarEmissaoCalculosTotaisAno(inventoryRequest.EmpresaID, inventoryRequest.AnoReferencia, ref resultsResponse);
+                database.BuscarEmissaoCalculosTotaisEscopo(inventoryRequest.UsuarioID, filtroEmpresaID, filtroAno, filtroMes, ref resultsResponse);
+                database.BuscarEmissaoCalculosTotaisAno(inventoryRequest.UsuarioID, filtroEmpresaID, filtroAno, filtroMes, ref resultsResponse);
 
                 jsonResponse = JsonConvert.SerializeObject(resultsResponse).ToString();
                 response = Request.CreateResponse(System.Net.HttpStatusCode.OK);

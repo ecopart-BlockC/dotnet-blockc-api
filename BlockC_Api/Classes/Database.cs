@@ -2043,12 +2043,42 @@ namespace BlockC_Api.Classes
             return retorno;
         }
 
-        public Boolean BuscarEmissaoCalculosTotaisAno(long EmpresaID, int AnoReferencia, ref Json.InventoryResultsResponse resultsResponse)
+        public Boolean BuscarEmissaoCalculosTotaisAno(string usuarioID, string[] filtroEmpresaID, string[] filtroAno, string[] filtroMes, ref Json.InventoryResultsResponse resultsResponse)
         {
             Boolean retorno = true;
 
             try
             {
+                string empresas = string.Empty;
+                foreach (string empresa in filtroEmpresaID)
+                {
+                    empresas += string.Concat(empresa, ",");
+                }
+
+                string anos = string.Empty;
+                foreach (string ano in filtroAno)
+                {
+                    anos += string.Concat(ano, ",");
+                }
+
+                string meses = string.Empty;
+                foreach (string mes in filtroMes)
+                {
+                    meses += string.Concat(mes, ",");
+                }
+
+                if (empresas.EndsWith(","))
+                    empresas = empresas.Remove(empresas.Length - 1);
+
+                if (anos.EndsWith(","))
+                    anos = anos.Remove(anos.Length - 1);
+
+                if (meses.EndsWith(","))
+                    meses = meses.Remove(meses.Length - 1);
+
+                if (!string.IsNullOrEmpty(empresas))
+                    usuarioID = string.Empty;
+
                 using (SqlConnection varConn = new SqlConnection(connString))
                 {
                     varConn.Open();
@@ -2056,8 +2086,10 @@ namespace BlockC_Api.Classes
                     using (SqlCommand varComm = new SqlCommand("usp_Buscar_EmissaoCalc_Totais_Ano", varConn))
                     {
                         varComm.CommandType = System.Data.CommandType.StoredProcedure;
-                        varComm.Parameters.AddWithValue("empresaID", EmpresaID);
-                        varComm.Parameters.AddWithValue("AnoRef", AnoReferencia);
+                        varComm.Parameters.AddWithValue("filtroUsuarioID", usuarioID);
+                        varComm.Parameters.AddWithValue("filtroEmpresa", empresas);
+                        varComm.Parameters.AddWithValue("filtroAno", anos);
+                        varComm.Parameters.AddWithValue("filtroMes", meses);
 
                         using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
                         {
@@ -2071,16 +2103,17 @@ namespace BlockC_Api.Classes
                             while (myReader.Read())
                             {
                                 YearTotals yearTotals = new YearTotals();
-                                yearTotals.AnoReferencia = Convert.ToInt32(myReader["AnoReferencia"].ToString());
-                                yearTotals.Tco2 = Convert.ToDouble(myReader["tco2"].ToString());
-                                yearTotals.Tch4 = Convert.ToDouble(myReader["tch4"].ToString());
-                                yearTotals.Tn2o = Convert.ToDouble(myReader["tn2o"].ToString());
-                                yearTotals.Tco2_Bio = Convert.ToDouble(myReader["tco2_bio"].ToString());
-                                yearTotals.Thfc = Convert.ToDouble(myReader["thfc"].ToString());
-                                yearTotals.Tpfc = Convert.ToDouble(myReader["tpfc"].ToString());
-                                yearTotals.Tsf6 = Convert.ToDouble(myReader["tsf6"].ToString());
-                                yearTotals.Tnf3 = Convert.ToDouble(myReader["tnf3"].ToString());
-                                yearTotals.Tco2e = Convert.ToDouble(myReader["tco2e"].ToString());
+                                //yearTotals.AnoReferencia = Convert.ToInt32(myReader["AnoReferencia"].ToString());
+                                yearTotals.AnoReferencia = 0;
+                                yearTotals.Tco2 = myReader.GetDecimal(myReader.GetOrdinal("tco2"));
+                                yearTotals.Tch4 = myReader.GetDecimal(myReader.GetOrdinal("tch4"));
+                                yearTotals.Tn2o = myReader.GetDecimal(myReader.GetOrdinal("tn2o"));
+                                yearTotals.Tco2_Bio = myReader.GetDecimal(myReader.GetOrdinal("tco2_bio"));
+                                yearTotals.Thfc = myReader.GetDecimal(myReader.GetOrdinal("thfc"));
+                                yearTotals.Tpfc = myReader.GetDecimal(myReader.GetOrdinal("tpfc"));
+                                yearTotals.Tsf6 = myReader.GetDecimal(myReader.GetOrdinal("tsf6"));
+                                yearTotals.Tnf3 = myReader.GetDecimal(myReader.GetOrdinal("tnf3"));
+                                yearTotals.Tco2e = myReader.GetDecimal(myReader.GetOrdinal("tco2e"));
                                 resultsResponse.TotalAno.Add(yearTotals);
                             }
                         }
@@ -2096,12 +2129,42 @@ namespace BlockC_Api.Classes
             return retorno;
         }
 
-        public Boolean BuscarEmissaoCalculosTotaisEscopo(long EmpresaID, int AnoReferencia, ref Json.InventoryResultsResponse resultsResponse)
+        public Boolean BuscarEmissaoCalculosTotaisEscopo(string usuarioID, string[] filtroEmpresaID, string[] filtroAno, string[] filtroMes, ref Json.InventoryResultsResponse resultsResponse)
         {
             Boolean retorno = true;
 
             try
             {
+                string empresas = string.Empty;
+                foreach (string empresa in filtroEmpresaID)
+                {
+                    empresas += string.Concat(empresa, ",");
+                }
+
+                string anos = string.Empty;
+                foreach (string ano in filtroAno)
+                {
+                    anos += string.Concat(ano, ",");
+                }
+
+                string meses = string.Empty;
+                foreach (string mes in filtroMes)
+                {
+                    meses += string.Concat(mes, ",");
+                }
+
+                if (empresas.EndsWith(","))
+                    empresas = empresas.Remove(empresas.Length - 1);
+
+                if (anos.EndsWith(","))
+                    anos = anos.Remove(anos.Length - 1);
+
+                if (meses.EndsWith(","))
+                    meses = meses.Remove(meses.Length - 1);
+
+                if (!string.IsNullOrEmpty(empresas))
+                    usuarioID = string.Empty;
+
                 using (SqlConnection varConn = new SqlConnection(connString))
                 {
                     varConn.Open();
@@ -2109,8 +2172,10 @@ namespace BlockC_Api.Classes
                     using (SqlCommand varComm = new SqlCommand("usp_Buscar_EmissaoCalc_Totais_Escopo", varConn))
                     {
                         varComm.CommandType = System.Data.CommandType.StoredProcedure;
-                        varComm.Parameters.AddWithValue("empresaID", EmpresaID);
-                        varComm.Parameters.AddWithValue("AnoRef", AnoReferencia);
+                        varComm.Parameters.AddWithValue("filtroUsuarioID", usuarioID);
+                        varComm.Parameters.AddWithValue("filtroEmpresa", empresas);
+                        varComm.Parameters.AddWithValue("filtroAno", anos);
+                        varComm.Parameters.AddWithValue("filtroMes", meses);
 
                         using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
                         {
@@ -2125,7 +2190,8 @@ namespace BlockC_Api.Classes
                             {
                                 ScopeTotals scopeTotals = new ScopeTotals();
                                 scopeTotals.Escopo = myReader["Escopo"].ToString();
-                                scopeTotals.AnoReferencia = Convert.ToInt32(myReader["AnoReferencia"].ToString());
+                                //scopeTotals.AnoReferencia = Convert.ToInt32(myReader["AnoReferencia"].ToString());
+                                scopeTotals.AnoReferencia = 0;
                                 scopeTotals.Tco2 = Convert.ToDouble(myReader["tco2"].ToString());
                                 scopeTotals.Tch4 = Convert.ToDouble(myReader["tch4"].ToString());
                                 scopeTotals.Tn2o = Convert.ToDouble(myReader["tn2o"].ToString());
@@ -2150,12 +2216,42 @@ namespace BlockC_Api.Classes
             return retorno;
         }
 
-        public Boolean BuscarEmissaoCalculosTotais(long EmpresaID, int AnoReferencia, ref Json.InventoryResultsResponse resultsResponse)
+        public Boolean BuscarEmissaoCalculosTotais(string usuarioID, string[] filtroEmpresaID, string[] filtroAno, string[] filtroMes, ref Json.InventoryResultsResponse resultsResponse)
         {
             Boolean retorno = true;
 
             try
             {
+                string empresas = string.Empty;
+                foreach (string empresa in filtroEmpresaID)
+                {
+                    empresas += string.Concat(empresa, ",");
+                }
+
+                string anos = string.Empty;
+                foreach (string ano in filtroAno)
+                {
+                    anos += string.Concat(ano, ",");
+                }
+
+                string meses = string.Empty;
+                foreach (string mes in filtroMes)
+                {
+                    meses += string.Concat(mes, ",");
+                }
+
+                if (empresas.EndsWith(","))
+                    empresas = empresas.Remove(empresas.Length - 1);
+
+                if (anos.EndsWith(","))
+                    anos = anos.Remove(anos.Length - 1);
+
+                if (meses.EndsWith(","))
+                    meses = meses.Remove(meses.Length - 1);
+
+                if (!string.IsNullOrEmpty(empresas))
+                    usuarioID = string.Empty;
+
                 using (SqlConnection varConn = new SqlConnection(connString))
                 {
                     varConn.Open();
@@ -2163,8 +2259,10 @@ namespace BlockC_Api.Classes
                     using (SqlCommand varComm = new SqlCommand("usp_Buscar_EmissaoCalc_Totais", varConn))
                     {
                         varComm.CommandType = System.Data.CommandType.StoredProcedure;
-                        varComm.Parameters.AddWithValue("empresaID", EmpresaID);
-                        varComm.Parameters.AddWithValue("AnoRef", AnoReferencia);
+                        varComm.Parameters.AddWithValue("filtroUsuarioID", usuarioID);
+                        varComm.Parameters.AddWithValue("filtroEmpresa", empresas);
+                        varComm.Parameters.AddWithValue("filtroAno", anos);
+                        varComm.Parameters.AddWithValue("filtroMes", meses);
 
                         using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
                         {
