@@ -67,10 +67,16 @@ namespace BlockC_Api.Classes.Json
 
             [JsonProperty("fieldValue", NullValueHandling = NullValueHandling.Ignore)]
             public decimal FieldValue { get; set; }
+
+            [JsonProperty("fieldLabel", NullValueHandling = NullValueHandling.Ignore)]
+            public string FieldLabel { get; set; }
         }
 
         public partial class RegistryDocuments
         {
+            [JsonProperty("documentId", NullValueHandling = NullValueHandling.Ignore)]
+            public string DocumentId { get; set; }
+
             [JsonProperty("documentType", NullValueHandling = NullValueHandling.Ignore)]
             public string DocumentType { get; set; }
 

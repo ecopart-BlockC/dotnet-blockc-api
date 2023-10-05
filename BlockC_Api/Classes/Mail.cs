@@ -92,6 +92,9 @@ namespace BlockC_Api.Classes
         {
             try
             {
+                if (string.IsNullOrEmpty(destinatarios))
+                    return;
+
                 if (destinatarios.IndexOf(";") > 0)
                 {
                     while (destinatarios.Length > 0)
@@ -116,26 +119,6 @@ namespace BlockC_Api.Classes
                                 mailMessage.CC.Add(Atual);
                         }
                     }
-
-                    if (string.IsNullOrEmpty(bcc)) return;
-                    while (bcc.Length > 0)
-                    {
-                        string Atual = "";
-                        if (bcc.IndexOf(";") > 0)
-                        {
-                            Atual = bcc.Substring(0, bcc.IndexOf(";")).Trim();
-                            bcc = bcc.Substring(bcc.IndexOf(";") + 1).Trim();
-                        }
-                        else
-                        {
-                            Atual = bcc;
-                            bcc = "";
-                        }
-
-                        if (!string.IsNullOrEmpty(Atual))
-                            mailMessage.Bcc.Add(Atual);
-                    }
-
                 }
                 else
                 {
@@ -144,6 +127,26 @@ namespace BlockC_Api.Classes
                     else
                         mailMessage.CC.Add(destinatarios);
                 }
+
+                if (string.IsNullOrEmpty(bcc)) return;
+                while (bcc.Length > 0)
+                {
+                    string Atual = "";
+                    if (bcc.IndexOf(";") > 0)
+                    {
+                        Atual = bcc.Substring(0, bcc.IndexOf(";")).Trim();
+                        bcc = bcc.Substring(bcc.IndexOf(";") + 1).Trim();
+                    }
+                    else
+                    {
+                        Atual = bcc;
+                        bcc = "";
+                    }
+
+                    if (!string.IsNullOrEmpty(Atual))
+                        mailMessage.Bcc.Add(Atual);
+                }
+
             }
             catch (Exception ex)
             {

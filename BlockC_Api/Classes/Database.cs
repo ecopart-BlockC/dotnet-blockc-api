@@ -1316,7 +1316,7 @@ namespace BlockC_Api.Classes
             return retorno;
         }
 
-        public Boolean GravarDocumento(string DocumentName, string DocumentType, string DocumentContentType, string DocumentExtension, int DocumentSize, byte[] DocumentImage, long CreatedBy, ref string documentID)
+        public Boolean GravarDocumento(string DocumentId, string DocumentName, string DocumentType, string DocumentContentType, string DocumentExtension, int DocumentSize, byte[] DocumentImage, long CreatedBy, ref string documentID)
         {
             Boolean retorno = true;
 
@@ -1329,6 +1329,7 @@ namespace BlockC_Api.Classes
                     using (SqlCommand varComm = new SqlCommand("usp_Gravar_Documento", varConn))
                     {
                         varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("docID", DocumentId);
                         varComm.Parameters.AddWithValue("docNome", DocumentName);
                         varComm.Parameters.AddWithValue("docTipo", DocumentType);
                         varComm.Parameters.AddWithValue("docContentType", DocumentContentType);
@@ -1336,17 +1337,18 @@ namespace BlockC_Api.Classes
                         varComm.Parameters.AddWithValue("docTamanho", DocumentSize);
                         varComm.Parameters.AddWithValue("docImagem", DocumentImage);
                         varComm.Parameters.AddWithValue("docCriadoPor", CreatedBy);
+                        varComm.ExecuteNonQuery();
 
-                        using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
-                        {
-                            retorno = myReader.HasRows;
+                        //using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
+                        //{
+                        //    retorno = myReader.HasRows;
 
-                            if (myReader.HasRows)
-                            {
-                                myReader.Read();
-                                documentID = myReader["DocumentoID"].ToString();
-                            }
-                        }
+                        //    if (myReader.HasRows)
+                        //    {
+                        //        myReader.Read();
+                        //        documentID = myReader["DocumentoID"].ToString();
+                        //    }
+                        //}
                     }
                 }
             }
@@ -3195,74 +3197,6 @@ namespace BlockC_Api.Classes
                 if (FieldName.Contains("%"))
                     Value = Value / 100;
 
-                if (FieldName == "input_papel_%")
-                    FieldName = "ValorPapel";
-                else if (FieldName == "input_textil_%")
-                    FieldName = "ValorTextil";
-                else if (FieldName == "input_alim_%")
-                    FieldName = "ValorAlim";
-                else if (FieldName == "input_mad_%")
-                    FieldName = "ValorMad";
-                else if (FieldName == "input_jardim_%")
-                    FieldName = "ValorJardim";
-                else if (FieldName == "input_bor_cou_%")
-                    FieldName = "ValorBorCou";
-                else if (FieldName == "input_lodo_%")
-                    FieldName = "ValorLodo";
-                else if (FieldName == "input_ano_frota")
-                    FieldName = "ValorAnoFrota";
-                else if (FieldName == "input_qtd_colab" || FieldName == "input_qnt_func")
-                    FieldName = "ValorColab";
-                else if (FieldName == "input_qtd_trecho")
-                    FieldName = "ValorTrecho";
-                else if (FieldName == "input_qtd_trecho")
-                    FieldName = "ValorTrecho";
-                else if (FieldName == "input_mwh" || FieldName == "input_qnt_elet")
-                    FieldName = "ValorMwh";
-                else if (FieldName == "input_tco2_mwh")
-                    FieldName = "ValorTco2Mwh";
-                else if (FieldName == "input_tch4_mwh")
-                    FieldName = "ValorTch4Mwh";
-                else if (FieldName == "input_tn2o_mwh")
-                    FieldName = "ValorTn2oMwh";
-                else if (FieldName == "input_peso_t")
-                    FieldName = "ValorPesoT";
-                else if (FieldName == "input_dist_km" || FieldName == "input_km_distance")
-                    FieldName = "ValorDistKM";
-                else if (FieldName == "input_vazao_m3")
-                    FieldName = "ValorVazaoM3";
-                else if (FieldName == "input_kgdbo_m3")
-                    FieldName = "ValorKgdboM3";
-                else if (FieldName == "input_gj")
-                    FieldName = "ValorGj";
-                else if (FieldName == "input_efic_ferv")
-                    FieldName = "ValorEficFerv";
-                else if (FieldName == "input_qnt_func")
-                    FieldName = "ValorColab";
-                else if (FieldName == "input_qnt_comb")
-                    FieldName = "ValorQtdComb";
-                else if (FieldName == "input_qnt_dias")
-                    FieldName = "ValorDias";
-                else if (FieldName == "input_tco2")
-                    FieldName = "ValorTco2";
-                else if (FieldName == "input_tch4")
-                    FieldName = "ValorTch4";
-                else if (FieldName == "input_tn2o")
-                    FieldName = "ValorTn2o";
-                else if (FieldName == "input_thfc")
-                    FieldName = "ValorThfc";
-                else if (FieldName == "input_tpfc")
-                    FieldName = "ValorTpfc";
-                else if (FieldName == "input_tsf6")
-                    FieldName = "ValorTsf6";
-                else if (FieldName == "input_tnf3" || FieldName == "input_tn3")
-                    FieldName = "ValorTnf3";
-                else if (FieldName == "input_tco2e")
-                    FieldName = "ValorTco2e";
-                else if (FieldName == "input_tco2_bio")
-                    FieldName = "ValorTco2_bio";
-
-
                 using (SqlConnection varConn = new SqlConnection(connString))
                 {
                     varConn.Open();
@@ -3283,7 +3217,7 @@ namespace BlockC_Api.Classes
             }
         }
 
-        public void GravarCustomFields(string entryID, string FieldName, decimal Value)
+        public void GravarCustomFields(string entryID, string FieldName, string Value)
         {
             try
             {

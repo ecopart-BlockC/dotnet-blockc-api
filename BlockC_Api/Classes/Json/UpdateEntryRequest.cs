@@ -82,6 +82,9 @@ namespace BlockC_Api.Classes.Json
 
         public partial class RegistryDocuments
         {
+            [JsonProperty("documentId", NullValueHandling = NullValueHandling.Ignore)]
+            public string DocumentID{ get; set; }
+
             [JsonProperty("documentType", NullValueHandling = NullValueHandling.Ignore)]
             public string DocumentType { get; set; }
 

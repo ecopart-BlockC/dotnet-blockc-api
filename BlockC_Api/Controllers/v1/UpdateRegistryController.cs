@@ -96,50 +96,54 @@ namespace BlockC_Api.Controllers.v1
                             Classes.Json.UpdateEntryResponse.RegistryDocuments docResponse = new Classes.Json.UpdateEntryResponse.RegistryDocuments();
                             docResponse.DocumentStatus = "Sem arquivo na requisição, nenhuma alteração realizada";
 
-                            if (!string.IsNullOrEmpty(doc.DocumentImage))
-                            {
-                                byte[] documentImage = Convert.FromBase64String(doc.DocumentImage);
+                            if (string.IsNullOrEmpty(doc.DocumentID))
+                                continue;
+                            
+                            if (!string.IsNullOrEmpty(doc.DocumentID))
                                 docResponse.DocumentStatus = "OK";
 
-                                string docName = string.Empty;
-                                if (string.IsNullOrEmpty(doc.DocumentName))
-                                    docName = "Não informado";
-                                else
-                                    docName = doc.DocumentName;
+                            byte[] documentImage = null;
+                            //byte[] documentImage = Convert.FromBase64String(doc.DocumentImage);
+                            //docResponse.DocumentStatus = "OK";
 
-                                string docType = string.Empty;
-                                if (string.IsNullOrEmpty(doc.DocumentType))
-                                    docType = "Não informado";
-                                else
-                                    docType = doc.DocumentType;
+                            string docName = string.Empty;
+                            if (string.IsNullOrEmpty(doc.DocumentName))
+                                docName = "Não informado";
+                            else
+                                docName = doc.DocumentName;
 
-                                string docContentType = string.Empty;
-                                if (string.IsNullOrEmpty(doc.DocumentContentType))
-                                    docContentType = "Não informado";
-                                else
-                                    docContentType = doc.DocumentContentType;
+                            string docType = string.Empty;
+                            if (string.IsNullOrEmpty(doc.DocumentType))
+                                docType = "Não informado";
+                            else
+                                docType = doc.DocumentType;
+
+                            string docContentType = string.Empty;
+                            if (string.IsNullOrEmpty(doc.DocumentContentType))
+                                docContentType = "Não informado";
+                            else
+                                docContentType = doc.DocumentContentType;
 
 
-                                if (!database.GravarDocumento(
-                                    docName
-                                    , docType
-                                    , docContentType
-                                    , ""
-                                    , documentImage.Length
-                                    , documentImage
-                                    , registry.CreatedByID
-                                    , ref documentID))
-                                {
-                                    docResponse.DocumentStatus = "Não foi possível atualizar o arquivo";
-                                }
+                            if (!database.GravarDocumento(
+                                doc.DocumentID
+                                , docName
+                                , docType
+                                , docContentType
+                                , ""
+                                , 0
+                                , documentImage
+                                , registry.CreatedByID
+                                , ref documentID))
+                            {
+                                docResponse.DocumentStatus = "Não foi possível atualizar o arquivo";
+                            }
 
-                                if (!string.IsNullOrEmpty(documentID))
-                                {
-                                    docResponse.DocumentID = documentID;
-                                    docResponse.DocumentName = doc.DocumentName;
-                                    database.GravarLancamentoArquivo(registry.RegistryID, documentID);
-                                }
-
+                            if (!string.IsNullOrEmpty(documentID))
+                            {
+                                docResponse.DocumentID = documentID;
+                                docResponse.DocumentName = doc.DocumentName;
+                                database.GravarLancamentoArquivo(registry.RegistryID, documentID);
                             }
 
                             registryResponse.Documents.Add(docResponse);

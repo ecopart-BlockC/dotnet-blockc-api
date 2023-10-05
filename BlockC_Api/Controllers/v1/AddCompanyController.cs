@@ -90,6 +90,7 @@ namespace BlockC_Api.Controllers.v1
                 int emissao = 0;
                 int participacao = 0;
                 int controle = 0;
+                string cnpj = companyRequest.CNPJ.Replace(".", "").Replace("-", "").Replace("/", "");
 
                 if (companyRequest.Matriz)
                 {
@@ -104,7 +105,7 @@ namespace BlockC_Api.Controllers.v1
                 long empresaID = database.GravarEmpresa(companyRequest.MatrizID
                     , matriz
                     , companyRequest.RazaoSocial
-                    , companyRequest.CNPJ
+                    , cnpj
                     , emissao
                     , companyRequest.Setor
                     , companyRequest.Cidade

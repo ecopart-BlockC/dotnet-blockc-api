@@ -163,7 +163,11 @@ namespace BlockC_Api.Controllers.v1
                         {
                             foreach (Classes.Json.RegistryList.RegistryCustomFields customField in registry.CustomFields)
                             {
-                                database.GravarCustomFields(entryID, customField.FieldName, customField.FieldValue);
+                                string valor = customField.FieldValue.ToString();
+                                if (!string.IsNullOrEmpty(customField.FieldLabel) && customField.FieldValue == 0)
+                                    valor = customField.FieldLabel;
+
+                                database.GravarCustomFields(entryID, customField.FieldName, valor);
                                 database.AtualizarLancamentoCustomFields(entryID, customField.FieldName, customField.FieldValue);
                             }
                         }
@@ -205,59 +209,78 @@ namespace BlockC_Api.Controllers.v1
                     }
 
                     //==========================================
-                    //              GRAVAR DOCUMENTOS
+                    //             GRAVAR DOCUMENTOS
                     //==========================================
-                    if (registry.Documents != null)
+                    if (registry.Documents == null)
+                        continue;
+
+                    registryResponse.Documents = new List<RegistryResponseList.RegistryDocuments>();
+
+                    foreach (RegistryList.RegistryDocuments doc in registry.Documents)
                     {
-                        registryResponse.Documents = new List<RegistryResponseList.RegistryDocuments>();
+                        RegistryResponseList.RegistryDocuments responseDocuments = new RegistryResponseList.RegistryDocuments();
 
-                        foreach (RegistryList.RegistryDocuments doc in registry.Documents)
+                        if (string.IsNullOrEmpty(doc.DocumentId))
                         {
-                            RegistryResponseList.RegistryDocuments responseDocuments = new RegistryResponseList.RegistryDocuments();
-
-                            if (string.IsNullOrEmpty(doc.DocumentImage))
-                            {
-                                responseDocuments.DocumentID = "";
-                                responseDocuments.InsertStatus = "Não possui arquivo";
-                                responseDocuments.DocumentName = doc.DocumentName;
-                                registryResponse.Documents.Add(responseDocuments);
-                                continue; 
-                            }
-
-                            if (!Classes.Variaveis.contentTypes.Contains(doc.DocumentContentType.ToLower()))
-                            {
-                                responseDocuments.DocumentID = "";
-                                responseDocuments.InsertStatus = "Documento não permitido. Somente arquivos XLSX, PDF, PNG, JPEG e JPG são permitidos";
-                                responseDocuments.DocumentName = doc.DocumentName;
-                                registryResponse.Documents.Add(responseDocuments);
-                                continue;
-                            }
-
-                            byte[] documentImage = Convert.FromBase64String(doc.DocumentImage);
-                            string docType = (string.IsNullOrEmpty(doc.DocumentType)) ? "Não Informado" : doc.DocumentType;
-
-                            if (!database.GravarDocumento(doc.DocumentName, docType, doc.DocumentContentType, "", documentImage.Length, documentImage, registry.CreatedByID, ref documentID))
-                            {
-                                responseDocuments.DocumentID = "";
-                                responseDocuments.InsertStatus = "FALHA";
-                                responseDocuments.DocumentName = doc.DocumentName;
-                            }
-                            else
-                            {
-                                responseDocuments.DocumentID = documentID;
-                                responseDocuments.InsertStatus = "OK";
-                                responseDocuments.DocumentName = doc.DocumentName;
-                            }
-
-                            if (!string.IsNullOrEmpty(documentID) && !string.IsNullOrEmpty(entryID))
-                            {
-                                database.GravarLancamentoArquivo(entryID, documentID);
-                            }
-
+                            responseDocuments.DocumentID = "";
+                            responseDocuments.InsertStatus = "Não possui arquivo";
+                            responseDocuments.DocumentName = doc.DocumentName;
                             registryResponse.Documents.Add(responseDocuments);
+                            continue;
                         }
 
-                    }
+                        //ALTERAÇÃO PARA NÃO RECEBER A BASE64, SOMENTE O ID DO AZURE
+                        //if (string.IsNullOrEmpty(doc.DocumentImage))
+                        //{
+                        //    responseDocuments.DocumentID = "";
+                        //    responseDocuments.InsertStatus = "Não possui arquivo";
+                        //    responseDocuments.DocumentName = doc.DocumentName;
+                        //    registryResponse.Documents.Add(responseDocuments);
+                        //    continue; 
+                        //}
+
+                        if (!Classes.Variaveis.contentTypes.Contains(doc.DocumentContentType.ToLower()))
+                        {
+                            responseDocuments.DocumentID = "";
+                            responseDocuments.InsertStatus = "Documento não permitido. Somente arquivos XLSX, PDF, PNG, JPEG e JPG são permitidos";
+                            responseDocuments.DocumentName = doc.DocumentName;
+                            registryResponse.Documents.Add(responseDocuments);
+                            continue;
+                        }
+
+                        //byte[] documentImage = Convert.FromBase64String(doc.DocumentImage);
+                        byte[] documentImage = null;
+                        string docType = (string.IsNullOrEmpty(doc.DocumentType)) ? "Não Informado" : doc.DocumentType;
+
+                        if (!database.GravarDocumento(
+                            doc.DocumentId
+                            , doc.DocumentName
+                            , docType
+                            , doc.DocumentContentType
+                            , ""
+                            , documentImage.Length
+                            , documentImage
+                            , registry.CreatedByID
+                            , ref documentID))
+                        {
+                            responseDocuments.DocumentID = "";
+                            responseDocuments.InsertStatus = "FALHA";
+                            responseDocuments.DocumentName = doc.DocumentName;
+                        }
+                        else
+                        {
+                            responseDocuments.DocumentID = doc.DocumentId;
+                            responseDocuments.InsertStatus = "OK";
+                            responseDocuments.DocumentName = doc.DocumentName;
+                        }
+
+                        if (!string.IsNullOrEmpty(doc.DocumentId) && !string.IsNullOrEmpty(entryID))
+                        {
+                            database.GravarLancamentoArquivo(entryID, doc.DocumentId);
+                        }
+
+                        registryResponse.Documents.Add(responseDocuments);
+                    }                    
 
                 }
 
