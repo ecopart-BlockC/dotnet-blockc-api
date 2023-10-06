@@ -2367,6 +2367,42 @@ namespace BlockC_Api.Classes
             return retorno;
         }
 
+        public void BuscarTipoTransporte(ref Classes.Json.GetSourcesResponse sourcesResponse, int Escopo, int CategoriaID, int SubCategoriaID, int EmpresaID)
+        {
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Buscar_TipoTransporte", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("Escopo", Escopo);
+                        varComm.Parameters.AddWithValue("CategoriaID", CategoriaID);
+                        varComm.Parameters.AddWithValue("SubCategoriaID", SubCategoriaID);
+                        varComm.Parameters.AddWithValue("EmpresaID", EmpresaID);
+
+                        using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
+                        {
+                            sourcesResponse.TransportationType = new List<TransportationList>();
+
+                            while (myReader.Read())
+                            {
+                                Classes.Json.TransportationList transp = new TransportationList();
+                                transp.TranspType = myReader["TransTipo"].ToString();
+                                sourcesResponse.TransportationType.Add(transp);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RegistrarErro("Server API", "Database.cs", "BuscarTipoTransporte", ex.Message, string.Empty);
+            }
+        }
+
         public Boolean BuscarFontes(ref Classes.Json.GetSourcesResponse sourcesResponse, int Escopo, int CategoriaID, int SubCategoriaID, int EmpresaID, string tipoDado)
         {
             Boolean retorno = true;

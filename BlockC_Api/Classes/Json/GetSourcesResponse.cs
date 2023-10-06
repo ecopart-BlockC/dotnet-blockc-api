@@ -11,6 +11,15 @@ namespace BlockC_Api.Classes.Json
     {
         [JsonProperty("sources")]
         public List<SourcesList> sources { get; set; }
+
+        [JsonProperty("transportationTypes")]
+        public List<TransportationList> TransportationType { get; set; }
+    }
+
+    public partial class TransportationList
+    {
+        [JsonProperty("transpType")]
+        public string TranspType { get; set; }
     }
 
     public partial class SourcesList
@@ -50,7 +59,6 @@ namespace BlockC_Api.Classes.Json
 
         [JsonProperty("sourceType")]
         public string SourceType { get; set; }
-
 
         //
         //
@@ -204,5 +212,6 @@ namespace BlockC_Api.Classes.Json
         //[JsonProperty("formula_tco2e")]
         //public string formula_tco2e { get; set; }
     }
+
 
 }

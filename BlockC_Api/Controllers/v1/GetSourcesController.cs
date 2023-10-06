@@ -84,6 +84,8 @@ namespace BlockC_Api.Controllers.v1
                     return response;
                 }
 
+                database.BuscarTipoTransporte(ref sourcesResponse, escopo, sourceRequest.CategoriaID, sourceRequest.SubCategoriaID, sourceRequest.EmpresaID);
+
                 jsonResponse = JsonConvert.SerializeObject(sourcesResponse).ToString();
                 response = Request.CreateResponse(System.Net.HttpStatusCode.OK);
                 response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
