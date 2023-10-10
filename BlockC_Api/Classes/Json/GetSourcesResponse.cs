@@ -60,6 +60,9 @@ namespace BlockC_Api.Classes.Json
         [JsonProperty("sourceType")]
         public string SourceType { get; set; }
 
+        [JsonProperty("transpType")]
+        public string TranspType { get; set; }
+
         //
         //
         //[JsonProperty("pci_tj_gg")]

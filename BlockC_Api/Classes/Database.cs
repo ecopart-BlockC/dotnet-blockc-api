@@ -1316,7 +1316,7 @@ namespace BlockC_Api.Classes
             return retorno;
         }
 
-        public Boolean GravarDocumento(string DocumentId, string DocumentName, string DocumentType, string DocumentContentType, string DocumentExtension, int DocumentSize, byte[] DocumentImage, long CreatedBy, ref string documentID)
+        public Boolean GravarDocumento(string DocumentId, string DocumentName, string DocumentType, string DocumentContentType, string DocumentExtension, int DocumentSize, long CreatedBy, ref string documentID, byte[] DocumentImage = null)
         {
             Boolean retorno = true;
 
@@ -1337,18 +1337,17 @@ namespace BlockC_Api.Classes
                         varComm.Parameters.AddWithValue("docTamanho", DocumentSize);
                         varComm.Parameters.AddWithValue("docImagem", DocumentImage);
                         varComm.Parameters.AddWithValue("docCriadoPor", CreatedBy);
-                        varComm.ExecuteNonQuery();
 
-                        //using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
-                        //{
-                        //    retorno = myReader.HasRows;
+                        using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
+                        {
+                            retorno = myReader.HasRows;
 
-                        //    if (myReader.HasRows)
-                        //    {
-                        //        myReader.Read();
-                        //        documentID = myReader["DocumentoID"].ToString();
-                        //    }
-                        //}
+                            if (myReader.HasRows)
+                            {
+                                myReader.Read();
+                                documentID = myReader["DocumentoID"].ToString();
+                            }
+                        }
                     }
                 }
             }
@@ -2441,6 +2440,8 @@ namespace BlockC_Api.Classes
                                 source.Country = myReader["Country"].ToString();
                                 source.FuelName = myReader["FuelName"].ToString();
                                 source.SourceType = myReader["SourceType"].ToString();
+                                source.TranspType = string.Empty;
+
                                 //source.pci_tj_gg = Convert.ToDouble(myReader["pci_tj_gg"].ToString());
                                 //source.dens_kg_un = Convert.ToDouble(myReader["dens_kg_un"].ToString());
                                 //source.biocomb_perc = Convert.ToDouble(myReader["biocomb_perc"].ToString());

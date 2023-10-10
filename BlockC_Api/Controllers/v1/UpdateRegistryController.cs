@@ -96,15 +96,20 @@ namespace BlockC_Api.Controllers.v1
                             Classes.Json.UpdateEntryResponse.RegistryDocuments docResponse = new Classes.Json.UpdateEntryResponse.RegistryDocuments();
                             docResponse.DocumentStatus = "Sem arquivo na requisição, nenhuma alteração realizada";
 
-                            if (string.IsNullOrEmpty(doc.DocumentID))
+                            if (string.IsNullOrEmpty(doc.DocumentID) && string.IsNullOrEmpty(doc.DocumentImage))
                                 continue;
-                            
-                            if (!string.IsNullOrEmpty(doc.DocumentID))
-                                docResponse.DocumentStatus = "OK";
+
+                            string docID = string.Empty;
+                            if (string.IsNullOrEmpty(doc.DocumentID))
+                                docID = Guid.NewGuid().ToString();
+                            else
+                                docID = doc.DocumentID;
+
+                            docResponse.DocumentStatus = "OK";
 
                             byte[] documentImage = null;
-                            //byte[] documentImage = Convert.FromBase64String(doc.DocumentImage);
-                            //docResponse.DocumentStatus = "OK";
+                            if (!string.IsNullOrEmpty(doc.DocumentImage))
+                                documentImage = Convert.FromBase64String(doc.DocumentImage);
 
                             string docName = string.Empty;
                             if (string.IsNullOrEmpty(doc.DocumentName))
@@ -124,17 +129,18 @@ namespace BlockC_Api.Controllers.v1
                             else
                                 docContentType = doc.DocumentContentType;
 
+                            int docSize = documentImage.Length;
 
                             if (!database.GravarDocumento(
-                                doc.DocumentID
+                                docID
                                 , docName
                                 , docType
                                 , docContentType
                                 , ""
-                                , 0
-                                , documentImage
+                                , docSize
                                 , registry.CreatedByID
-                                , ref documentID))
+                                , ref documentID
+                                , documentImage))
                             {
                                 docResponse.DocumentStatus = "Não foi possível atualizar o arquivo";
                             }
