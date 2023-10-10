@@ -220,7 +220,7 @@ namespace BlockC_Api.Controllers.v1
                     {
                         RegistryResponseList.RegistryDocuments responseDocuments = new RegistryResponseList.RegistryDocuments();
 
-                        if (string.IsNullOrEmpty(doc.DocumentId))
+                        if (string.IsNullOrEmpty(doc.DocumentId) && string.IsNullOrEmpty(doc.DocumentImage))
                         {
                             responseDocuments.DocumentID = "";
                             responseDocuments.InsertStatus = "Não possui arquivo";
@@ -248,8 +248,14 @@ namespace BlockC_Api.Controllers.v1
                             continue;
                         }
 
-                        //byte[] documentImage = Convert.FromBase64String(doc.DocumentImage);
+                        int docSize = 0;
                         byte[] documentImage = null;
+                        if (!string.IsNullOrEmpty(doc.DocumentImage))
+                        {
+                            documentImage = Convert.FromBase64String(doc.DocumentImage);
+                            docSize = doc.DocumentImage.Length;
+                        }                        
+
                         string docType = (string.IsNullOrEmpty(doc.DocumentType)) ? "Não Informado" : doc.DocumentType;
 
                         if (!database.GravarDocumento(
@@ -258,10 +264,10 @@ namespace BlockC_Api.Controllers.v1
                             , docType
                             , doc.DocumentContentType
                             , ""
-                            , documentImage.Length
-                            , documentImage
+                            , docSize
                             , registry.CreatedByID
-                            , ref documentID))
+                            , ref documentID
+                            , documentImage))
                         {
                             responseDocuments.DocumentID = "";
                             responseDocuments.InsertStatus = "FALHA";
@@ -269,14 +275,14 @@ namespace BlockC_Api.Controllers.v1
                         }
                         else
                         {
-                            responseDocuments.DocumentID = doc.DocumentId;
+                            responseDocuments.DocumentID = documentID;
                             responseDocuments.InsertStatus = "OK";
                             responseDocuments.DocumentName = doc.DocumentName;
                         }
 
-                        if (!string.IsNullOrEmpty(doc.DocumentId) && !string.IsNullOrEmpty(entryID))
+                        if (!string.IsNullOrEmpty(documentID) && !string.IsNullOrEmpty(entryID))
                         {
-                            database.GravarLancamentoArquivo(entryID, doc.DocumentId);
+                            database.GravarLancamentoArquivo(entryID, documentID);
                         }
 
                         registryResponse.Documents.Add(responseDocuments);
