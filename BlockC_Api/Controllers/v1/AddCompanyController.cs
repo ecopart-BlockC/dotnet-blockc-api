@@ -34,7 +34,6 @@ namespace BlockC_Api.Controllers.v1
                 {
                     genericResponse.mensagem = "Conteúdo da requisição inválido";
                     jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
-
                     response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
                     response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
                     return response;
@@ -44,8 +43,7 @@ namespace BlockC_Api.Controllers.v1
                 {
                     genericResponse.mensagem = "Token inexistente";
                     jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
-
-                    response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
+                    response = Request.CreateResponse(System.Net.HttpStatusCode.Unauthorized);
                     response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
                     return response;
                 }
@@ -59,7 +57,6 @@ namespace BlockC_Api.Controllers.v1
                 {
                     genericResponse.mensagem = "Necessário informar todos os campos";
                     jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
-
                     response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
                     response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
                     return response;
@@ -70,17 +67,16 @@ namespace BlockC_Api.Controllers.v1
                 {
                     genericResponse.mensagem = "Token inválido";
                     jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
-
-                    response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
+                    response = Request.CreateResponse(System.Net.HttpStatusCode.Unauthorized);
                     response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
                     return response;
                 }
 
-                if (database.ValidarCNPJ(companyRequest.CNPJ))
+                string cnpj = companyRequest.CNPJ.Replace(".", "").Replace("-", "").Replace("/", "");
+                if (database.ValidarCNPJ(cnpj))
                 {
                     genericResponse.mensagem = "CNPJ informado já existe";
                     jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
-
                     response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
                     response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
                     return response;
@@ -89,8 +85,7 @@ namespace BlockC_Api.Controllers.v1
                 int matriz = 0;
                 int emissao = 0;
                 int participacao = 0;
-                int controle = 0;
-                string cnpj = companyRequest.CNPJ.Replace(".", "").Replace("-", "").Replace("/", "");
+                int controle = 0;                
 
                 if (companyRequest.Matriz)
                 {
@@ -119,7 +114,6 @@ namespace BlockC_Api.Controllers.v1
                 {
                     genericResponse.mensagem = "Não foi possível realizar o cadastro";
                     jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
-
                     response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
                     response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
                     return response;
@@ -135,10 +129,9 @@ namespace BlockC_Api.Controllers.v1
             catch (Exception ex)
             {
                 Classes.Database.RegistrarErro("Server API", "AddCompanyController", "Post", ex.Message, _addCompanyRequest.ToString());
-
                 genericResponse.mensagem = "Não foi possível atender a solicitação";
                 jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
-                response = Request.CreateResponse(System.Net.HttpStatusCode.InternalServerError);
+                response = Request.CreateResponse(System.Net.HttpStatusCode.NoContent);
                 response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
             }
 
