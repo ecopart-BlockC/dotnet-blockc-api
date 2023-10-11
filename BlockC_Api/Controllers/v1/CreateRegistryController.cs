@@ -229,16 +229,6 @@ namespace BlockC_Api.Controllers.v1
                             continue;
                         }
 
-                        //ALTERAÇÃO PARA NÃO RECEBER A BASE64, SOMENTE O ID DO AZURE
-                        //if (string.IsNullOrEmpty(doc.DocumentImage))
-                        //{
-                        //    responseDocuments.DocumentID = "";
-                        //    responseDocuments.InsertStatus = "Não possui arquivo";
-                        //    responseDocuments.DocumentName = doc.DocumentName;
-                        //    registryResponse.Documents.Add(responseDocuments);
-                        //    continue; 
-                        //}
-
                         if (!Classes.Variaveis.contentTypes.Contains(doc.DocumentContentType.ToLower()))
                         {
                             responseDocuments.DocumentID = "";
@@ -247,6 +237,10 @@ namespace BlockC_Api.Controllers.v1
                             registryResponse.Documents.Add(responseDocuments);
                             continue;
                         }
+
+                        documentID = string.Empty;
+                        if (!string.IsNullOrEmpty(doc.DocumentId))
+                            documentID = doc.DocumentId;
 
                         int docSize = 0;
                         byte[] documentImage = null;
@@ -259,7 +253,7 @@ namespace BlockC_Api.Controllers.v1
                         string docType = (string.IsNullOrEmpty(doc.DocumentType)) ? "Não Informado" : doc.DocumentType;
 
                         if (!database.GravarDocumento(
-                            doc.DocumentId
+                            documentID
                             , doc.DocumentName
                             , docType
                             , doc.DocumentContentType
@@ -300,7 +294,7 @@ namespace BlockC_Api.Controllers.v1
 
                 genericResponse.mensagem = "Não foi possível atender a solicitação";
                 jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
-                response = Request.CreateResponse(System.Net.HttpStatusCode.InternalServerError);
+                response = Request.CreateResponse(System.Net.HttpStatusCode.NoContent);
                 response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
             }
 

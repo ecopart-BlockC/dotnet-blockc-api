@@ -104,7 +104,7 @@ namespace BlockC_Api.Controllers.v1
 
                 genericResponse.mensagem = "Não foi possível atender a solicitação";
                 jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
-                response = Request.CreateResponse(System.Net.HttpStatusCode.InternalServerError);
+                response = Request.CreateResponse(System.Net.HttpStatusCode.NoContent);
                 response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
             }
 
