@@ -3455,6 +3455,43 @@ namespace BlockC_Api.Classes
             return retorno;
         }
 
+        public string BuscarPaisLista(ref Classes.Json.GetCountriesResponse countryResponse)
+        {
+            string retorno = "OK";
+
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Buscar_Pais", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+
+                        using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
+                        {
+                            while (myReader.Read())
+                            {
+                                Classes.Json.GetCountriesResponse.Paises pais = new GetCountriesResponse.Paises();
+                                pais.PaisID = myReader["PaisID"].ToString();
+                                pais.Pais = myReader["PaisNome"].ToString();
+                                pais.Moeda = myReader["PaisMoeda"].ToString();
+                                countryResponse.PaisLista.Add(pais);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RegistrarErro("Server API", "Database.cs", "BuscarPaisLista", ex.Message, string.Empty);
+                retorno = "ERRO";
+            }
+
+            return retorno;
+        }
+
 
     }
 }
