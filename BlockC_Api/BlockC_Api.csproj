@@ -188,6 +188,8 @@
     <Compile Include="Classes\Json\GetCategoriesResponse.cs" />
     <Compile Include="Classes\Json\GetCompanyUsersRequest.cs" />
     <Compile Include="Classes\Json\GetCompanyUsersResponse.cs" />
+    <Compile Include="Classes\Json\GetCountriesRequest.cs" />
+    <Compile Include="Classes\Json\GetCountriesResponse.cs" />
     <Compile Include="Classes\Json\GetDocumentRequest.cs" />
     <Compile Include="Classes\Json\GetDocumentResponse.cs" />
     <Compile Include="Classes\Json\GetGasesRequest.cs" />
@@ -238,6 +240,7 @@
     <Compile Include="Controllers\v1\DeleteUserController.cs" />
     <Compile Include="Controllers\v1\GetCategoriesController.cs" />
     <Compile Include="Controllers\v1\GetCompanyUsersController.cs" />
+    <Compile Include="Controllers\v1\GetCountriesController.cs" />
     <Compile Include="Controllers\v1\GetDocumentController.cs" />
     <Compile Include="Controllers\v1\GetGasesController.cs" />
     <Compile Include="Controllers\v1\GetRegistryResultController.cs" />
@@ -349,6 +352,7 @@
     <Folder Include="Views\DeleteUser\" />
     <Folder Include="Views\GetCategories\" />
     <Folder Include="Views\GetCompanyUsers\" />
+    <Folder Include="Views\GetCountries\" />
     <Folder Include="Views\GetDocument\" />
     <Folder Include="Views\GetGases\" />
     <Folder Include="Views\GetRegistryResult\" />

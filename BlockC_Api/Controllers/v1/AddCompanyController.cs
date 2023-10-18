@@ -62,6 +62,15 @@ namespace BlockC_Api.Controllers.v1
                     return response;
                 }
 
+                if ((!companyRequest.Matriz) && (companyRequest.MatrizID == 0))
+                {
+                    genericResponse.mensagem = "Necessário informar o ID da Matriz para cadastrar uma filial";
+                    jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
+                    response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
+                    response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
+                    return response;
+                }
+
                 Classes.Database database = new Classes.Database();
                 if (!database.BuscarTokenExistente(companyRequest.Token))
                 {
