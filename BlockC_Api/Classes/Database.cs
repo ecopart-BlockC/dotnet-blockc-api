@@ -15,6 +15,7 @@ using System.Web.Helpers;
 using System.Web.UI.WebControls;
 using System.Xml;
 using System.Xml.Linq;
+using static BlockC_Api.Classes.Json.GetCountriesResponse;
 using static BlockC_Api.Classes.Json.RegistriesResponseCollection;
 
 namespace BlockC_Api.Classes
@@ -228,6 +229,38 @@ namespace BlockC_Api.Classes
             {
                 RegistrarErro("Server API", "Database.cs", "ValidarCNPJ", ex.Message, string.Empty);
                 retorno = true;
+            }
+
+            return retorno;
+        }
+
+        public Boolean ValidarCNPJMatriz(string cnpj, long matrizID)
+        {
+            Boolean retorno = false;
+
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Buscar_Empresa_MatrizCNPJ", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("varCNPJ", cnpj);
+                        varComm.Parameters.AddWithValue("varMatrizID", matrizID);
+
+                        using (SqlDataReader reader = varComm.ExecuteReader(System.Data.CommandBehavior.CloseConnection))
+                        {
+                            retorno = reader.HasRows;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RegistrarErro("Server API", "Database.cs", "ValidarCNPJMatriz", ex.Message, string.Empty);
+                retorno = false;
             }
 
             return retorno;
@@ -2402,7 +2435,8 @@ namespace BlockC_Api.Classes
             }
         }
 
-        public Boolean BuscarFontes(ref Classes.Json.GetSourcesResponse sourcesResponse, int Escopo, int CategoriaID, int SubCategoriaID, int EmpresaID, string tipoDado)
+        public Boolean BuscarFontes(ref Classes.Json.GetSourcesResponse sourcesResponse
+            , int Escopo, int CategoriaID, int SubCategoriaID, int EmpresaID, string tipoDado, string tipoProcesso, string paisID)
         {
             Boolean retorno = true;
 
@@ -2420,6 +2454,8 @@ namespace BlockC_Api.Classes
                         varComm.Parameters.AddWithValue("SubCategoriaID", SubCategoriaID);
                         varComm.Parameters.AddWithValue("EmpresaID", EmpresaID);
                         varComm.Parameters.AddWithValue("TipoDado", tipoDado);
+                        varComm.Parameters.AddWithValue("TipoProcesso", tipoProcesso);
+                        varComm.Parameters.AddWithValue("PaisID", paisID);
 
                         using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
                         {
@@ -2441,6 +2477,7 @@ namespace BlockC_Api.Classes
                                 source.FuelName = myReader["FuelName"].ToString();
                                 source.SourceType = myReader["SourceType"].ToString();
                                 source.TranspType = string.Empty;
+                                source.ProcessType = myReader["ProcessType"].ToString();
 
                                 //source.pci_tj_gg = Convert.ToDouble(myReader["pci_tj_gg"].ToString());
                                 //source.dens_kg_un = Convert.ToDouble(myReader["dens_kg_un"].ToString());

@@ -82,13 +82,30 @@ namespace BlockC_Api.Controllers.v1
                 }
 
                 string cnpj = companyRequest.CNPJ.Replace(".", "").Replace("-", "").Replace("/", "");
-                if (database.ValidarCNPJ(cnpj))
+                if (companyRequest.MatrizID == 0)
                 {
-                    genericResponse.mensagem = "CNPJ informado já existe";
-                    jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
-                    response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
-                    response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
-                    return response;
+                    if (database.ValidarCNPJ(cnpj))
+                    {
+                        genericResponse.mensagem = "CNPJ informado já existe";
+                        jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
+                        response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
+                        response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
+                        return response;
+                    }
+                }
+                else
+                {
+                    if (!database.ValidarCNPJMatriz(cnpj, companyRequest.MatrizID))
+                    {
+                        if (database.ValidarCNPJ(cnpj))
+                        {
+                            genericResponse.mensagem = "CNPJ informado já existe";
+                            jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
+                            response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
+                            response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
+                            return response;
+                        }
+                    }
                 }
 
                 int matriz = 0;
