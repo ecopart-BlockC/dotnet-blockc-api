@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Asp.Versioning;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,8 @@ using System.Web.Mvc;
 namespace BlockC_Api.Controllers.v1
 {
     [EnableCors(origins: "*", headers: "*", methods: "*")]
+    [ApiVersion("1.0")]
+    [System.Web.Http.Route("api/v{version:apiVersion}/AddEmission")]
     public class AddEmissionController : ApiController
     {
         public async Task<HttpResponseMessage> Post([System.Web.Http.FromBody] JObject _request)
