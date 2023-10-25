@@ -12,6 +12,7 @@ using System.Linq;
 using System.Reflection;
 using System.Web;
 using System.Web.Helpers;
+using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Xml;
 using System.Xml.Linq;
@@ -279,7 +280,7 @@ namespace BlockC_Api.Classes
                     using (SqlCommand varComm = new SqlCommand("usp_Gravar_Empresa", varConn))
                     {
                         varComm.CommandType = System.Data.CommandType.StoredProcedure;
-                        
+
                         if (MatrizID <= 0)
                         {
                             varComm.Parameters.AddWithValue("varMatrizID", null);
@@ -287,7 +288,7 @@ namespace BlockC_Api.Classes
                         else
                         {
                             varComm.Parameters.AddWithValue("varMatrizID", MatrizID);
-                        }                            
+                        }
 
                         varComm.Parameters.AddWithValue("varMatriz", Matriz);
                         varComm.Parameters.AddWithValue("varRazaoSocial", RazaoSocial);
@@ -377,7 +378,7 @@ namespace BlockC_Api.Classes
                                 if (senha != senhaDB)
                                     retorno.Clear();
 
-                            }                                
+                            }
                         }
                     }
                 }
@@ -460,7 +461,7 @@ namespace BlockC_Api.Classes
                     {
                         varComm.CommandType = System.Data.CommandType.StoredProcedure;
                         varComm.Parameters.AddWithValue("varUsuarioID", usuarioID);
-                        
+
                         using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
                         {
                             retorno = myReader.HasRows;
@@ -533,7 +534,7 @@ namespace BlockC_Api.Classes
 
                                 if (aprovado == 1)
                                     retorno = true;
-                            }                  
+                            }
                         }
                     }
                 }
@@ -884,7 +885,7 @@ namespace BlockC_Api.Classes
                             if (!myReader.HasRows) return;
 
                             companies.Filiais = new List<BranchesList>();
-                            
+
                             while (myReader.Read())
                             {
                                 branches = new BranchesList();
@@ -1450,7 +1451,7 @@ namespace BlockC_Api.Classes
 
                         if (CompanyID > 0)
                             varComm.Parameters.AddWithValue("lancCompanyID", CompanyID);
-                        
+
                         if (CategoryID > 0)
                             varComm.Parameters.AddWithValue("lancCategoryID", CategoryID);
 
@@ -1489,7 +1490,7 @@ namespace BlockC_Api.Classes
                             varComm.Parameters.AddWithValue("lancDocumentID", documentID);
 
                         varComm.Parameters.AddWithValue("lancCreatedByID", CreatedByID);
-                        varComm.Parameters.AddWithValue("lancStatus", entryStatus);                   
+                        varComm.Parameters.AddWithValue("lancStatus", entryStatus);
 
                         System.Guid lancamento = (Guid)varComm.ExecuteScalar();
                         entryID = lancamento.ToString();
@@ -1529,6 +1530,179 @@ namespace BlockC_Api.Classes
                 RegistrarErro("Server API", "Database.cs", "DesativarLancamento", ex.Message, string.Empty);
                 retorno = false;
             }
+
+            return retorno;
+        }
+
+        public Decimal BuscarTotalLancamentos(string filtroEmpresa
+            , string filtroCategoria
+            , string filtroSubCategoria
+            , string filtroUnidade
+            , string filtroMes
+            , string filtroAno
+            , string filtroRegistroStatus
+            , string filtroNomeDocumento
+            , long usuarioID)
+        {
+            Decimal retorno = 0;
+
+            try
+            {
+                string query = string.Empty;
+                query = "SELECT DISTINCT";
+                query += "    COUNT(lanc.ID) AS TotalRows ";
+                query += "FROM ";
+                query += "    tbl_lancamento lanc ";
+                query += "    LEFT OUTER JOIN tbl_lancamento_arquivo larq ON larq.LancamentoID = lanc.ID ";
+                query += "    LEFT OUTER JOIN tbl_arquivo arq ON larq.ArquivoID = arq.ID ";
+                query += "    INNER JOIN tbl_empresa emp ON lanc.EmpresaID = emp.ID ";
+                query += "WHERE ";
+                query += "    lanc.Ativo = 1 ";
+                query += "    AND emp.Ativo = 1 ";
+                query += "    AND lanc.EmpresaID IN (SELECT empu.EmpresaID FROM tbl_empresa_usuario empu INNER JOIN tbl_empresa emp2 ON empu.EmpresaID = emp2.ID WHERE emp2.Ativo = 1 AND empu.UsuarioID = " + usuarioID + ") ";
+
+                if (!string.IsNullOrEmpty(filtroNomeDocumento))
+                {
+                    query += "AND arq.Nome LIKE '%" + filtroNomeDocumento + "%' ";
+                }
+
+                if (!string.IsNullOrEmpty(filtroRegistroStatus))
+                {
+                    query += "AND lanc.StatusRegistro IN (";
+
+                    string[] registros = filtroRegistroStatus.Split(',');
+                    foreach (string registro in registros)
+                    {
+                        query += string.Concat("'", registro, "',");
+                    }
+
+                    if (query.EndsWith(","))
+                        query = query.Remove(query.Length - 1, 1);
+
+                    query += ") ";
+                }
+
+                if (!string.IsNullOrEmpty(filtroMes))
+                {
+                    query += "AND lanc.MesReferencia IN (";
+
+                    string[] registros = filtroMes.Split(',');
+                    foreach (string registro in registros)
+                    {
+                        query += string.Concat(registro, ",");
+                    }
+
+                    if (query.EndsWith(","))
+                        query = query.Remove(query.Length - 1, 1);
+
+                    query += ") ";
+                }
+
+                if (!string.IsNullOrEmpty(filtroAno))
+                {
+                    query += "AND lanc.AnoReferencia IN (";
+
+                    string[] registros = filtroAno.Split(',');
+                    foreach (string registro in registros)
+                    {
+                        query += string.Concat(registro, ",");
+                    }
+
+                    if (query.EndsWith(","))
+                        query = query.Remove(query.Length - 1, 1);
+
+                    query += ") ";
+                }
+
+                if (!string.IsNullOrEmpty(filtroUnidade))
+                {
+                    query += "AND lanc.UnidadeMedida IN (";
+
+                    string[] registros = filtroUnidade.Split(',');
+                    foreach (string registro in registros)
+                    {
+                        query += string.Concat("'", registro, "',");
+                    }
+
+                    if (query.EndsWith(","))
+                        query = query.Remove(query.Length - 1, 1);
+
+                    query += ") ";
+                }
+
+                if (!string.IsNullOrEmpty(filtroSubCategoria))
+                {
+                    query += "AND lanc.SubCategoriaID IN (";
+
+                    string[] registros = filtroSubCategoria.Split(',');
+                    foreach (string registro in registros)
+                    {
+                        if (registro != "0")
+                            query += string.Concat(registro, ",");
+                    }
+
+                    if (query.EndsWith(","))
+                        query = query.Remove(query.Length - 1, 1);
+
+                    query += ") ";
+                }
+
+                if (!string.IsNullOrEmpty(filtroCategoria))
+                {
+                    query += "AND lanc.CategoriaID IN (";
+
+                    string[] registros = filtroCategoria.Split(',');
+                    foreach (string registro in registros)
+                    {
+                        if (registro != "0")
+                            query += string.Concat(registro, ",");
+                    }
+
+                    if (query.EndsWith(","))
+                        query = query.Remove(query.Length - 1, 1);
+
+                    query += ") ";
+                }
+
+                if (!string.IsNullOrEmpty(filtroEmpresa))
+                {
+                    query += "AND lanc.EmpresaID IN (";
+
+                    string[] registros = filtroEmpresa.Split(',');
+                    foreach (string registro in registros)
+                    {
+                        if (registro != "0")
+                            query += string.Concat(registro, ",");
+                    }
+
+                    if (query.EndsWith(","))
+                        query = query.Remove(query.Length - 1, 1);
+
+                    query += ") ";
+                }
+
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand(query, varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.Text;
+
+                        using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
+                        {
+                            while (myReader.Read())
+                            {
+                                Decimal.TryParse(myReader["TotalRows"].ToString(), out retorno);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RegistrarErro("Server API", "Database.cs", "BuscarTotalLancamentos", ex.Message, string.Empty);
+           }
 
             return retorno;
         }
