@@ -225,6 +225,8 @@
     <Compile Include="Classes\Json\GetSourcesResponse.cs" />
     <Compile Include="Classes\Json\GetSubCategoriesRequest.cs" />
     <Compile Include="Classes\Json\GetSubCategoriesResponse.cs" />
+    <Compile Include="Classes\Json\GetTotalRegisterRequest.cs" />
+    <Compile Include="Classes\Json\GetTotalRegisterResponse.cs" />
     <Compile Include="Classes\Json\GetUserCompanyRequest.cs" />
     <Compile Include="Classes\Json\GetUserCompanyResponse.cs" />
     <Compile Include="Classes\Json\InventoryResultsRequest.cs" />
@@ -271,6 +273,7 @@
     <Compile Include="Controllers\v1\GetRegistryResultController.cs" />
     <Compile Include="Controllers\v1\GetSourcesController.cs" />
     <Compile Include="Controllers\v1\GetSubCategoriesController.cs" />
+    <Compile Include="Controllers\v1\GetTotalRegisterController.cs" />
     <Compile Include="Controllers\v1\GetUserCompanyController.cs" />
     <Compile Include="Controllers\v1\InventoryResultsController.cs" />
     <Compile Include="Controllers\v2\GetDocumentController.cs" />
@@ -385,6 +388,7 @@
     <Folder Include="Views\GetRegistryResult\" />
     <Folder Include="Views\GetSources\" />
     <Folder Include="Views\GetSubCategory\" />
+    <Folder Include="Views\GetTotalRegister\" />
     <Folder Include="Views\GetUserCompany\" />
     <Folder Include="Views\InventoryResults\" />
     <Folder Include="Views\LargeFile\" />

@@ -3703,6 +3703,46 @@ namespace BlockC_Api.Classes
             return retorno;
         }
 
+        public Boolean BuscarCategoriasTotalRegistros(long CompanyID, long UserID, ref Classes.Json.GetTotalRegisterResponse totalResponse, ref string mensagem)
+        {
+            Boolean retorno = true;
+
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Buscar_Categoria_TotalRegistro", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("usuarioID", UserID);
+                        varComm.Parameters.AddWithValue("empresaID", CompanyID);
+
+                        using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
+                        {
+                            while (myReader.Read())
+                            {
+                                Classes.Json.GetTotalRegisterResponse.CategoryTotal category = new GetTotalRegisterResponse.CategoryTotal();
+                                category.CategoryID = myReader.GetInt32(myReader.GetOrdinal("CategoriaID"));
+                                category.Category = myReader.GetString(myReader.GetOrdinal("Categoria"));
+                                category.Total = myReader.GetInt32(myReader.GetOrdinal("TotalRegistro"));
+                                totalResponse.categoryTotals.Add(category);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RegistrarErro("Server API", "Database.cs", "BuscarCategoriasTotalRegistros", ex.Message, string.Empty);
+                mensagem = string.Concat(ex.HResult.ToString(), " -> Não foi possível buscar o total de registros por categoria");
+                retorno = false;
+            }
+
+            return retorno;
+        }
+
 
     }
 }
