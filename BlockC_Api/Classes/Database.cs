@@ -954,6 +954,7 @@ namespace BlockC_Api.Classes
                                 userList.Sobrenome = myReader["Usuario_Sobrenome"].ToString();
                                 userList.Tipo = myReader["Usuario_Tipo"].ToString();
                                 userList.Email = myReader["Usuario_Email"].ToString();
+                                userList.Ativo = (myReader["Usuario_Ativo"].ToString() == "1" ? true : false);
 
                                 BuscarUsuarioEmpresas(Convert.ToInt64(myReader["Usuario_ID"].ToString()), ref userList, ref companies);
                                 userCompanyResponse.UsersList.Add(userList);
