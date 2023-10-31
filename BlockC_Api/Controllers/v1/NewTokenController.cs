@@ -10,10 +10,13 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Http.Cors;
+using Asp.Versioning;
 
 namespace BlockC_Api.Controllers.v1
 {
     [EnableCors(origins:"*", headers:"*", methods: "*")]
+    [ApiVersion("1.0")]
+    [System.Web.Http.Route("api/v{version:apiVersion}/NewToken")]
     public class NewTokenController : ApiController
     {
         public async Task<HttpResponseMessage> Get([System.Web.Http.FromBody] JObject _newTokenRequest)

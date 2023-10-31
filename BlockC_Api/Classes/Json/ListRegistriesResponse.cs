@@ -9,6 +9,9 @@ namespace BlockC_Api.Classes.Json
 {
     public class ListRegistriesResponse
     {
+        [JsonProperty("totalPages")]
+        public int TotalPages { get; set; }
+
         [JsonProperty("registries")]
         public List<RegistriesResponseCollection> Registries { get; set; }
     }

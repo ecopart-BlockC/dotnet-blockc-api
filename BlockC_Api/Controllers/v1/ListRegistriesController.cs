@@ -1,4 +1,5 @@
-﻿using BlockC_Api.Classes.Json;
+﻿using Asp.Versioning;
+using BlockC_Api.Classes.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -16,9 +17,10 @@ using System.Web.Mvc;
 namespace BlockC_Api.Controllers.v1
 {
     [EnableCors(origins: "*", headers: "*", methods: "*")]
+    [ApiVersion("1.0")]
+    [System.Web.Http.Route("api/v{version:apiVersion}/ListRegistries")]
     public class ListRegistriesController : ApiController
     {
-
         public async Task<HttpResponseMessage> Get([System.Web.Http.FromBody] JObject _request)
         {
             HttpResponseMessage response;
@@ -82,6 +84,15 @@ namespace BlockC_Api.Controllers.v1
                     genericResponse.mensagem = "Usuário requisitante inválido";
                     jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
                     response = Request.CreateResponse(System.Net.HttpStatusCode.Unauthorized);
+                    response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
+                    return response;
+                }
+
+                if (listRequest.Pagination.Page <= 0 || listRequest.Pagination.PageItems <=0)
+                {
+                    genericResponse.mensagem = "Número da página ou quatidade de registros por página inválidos";
+                    jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
+                    response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
                     response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
                     return response;
                 }
@@ -190,10 +201,9 @@ namespace BlockC_Api.Controllers.v1
                 ordenacao = ordenacao.Replace("unit", "lanc.UnidadeMedida");
                 ordenacao = ordenacao.Replace("referredMonth", "lanc.MesReferencia");
                 ordenacao = ordenacao.Replace("referredYear", "lanc.AnoReferencia");
-                ordenacao = ordenacao.Replace("status", "lanc.StatusRegistro");
-                
-                //ordenacao = ordenacao.Replace("referredDocument", "arq.Nome");
+                ordenacao = ordenacao.Replace("status", "lanc.StatusRegistro");                
                 ordenacao = ordenacao.Replace("referredDocument", "");
+                //ordenacao = ordenacao.Replace("referredDocument", "arq.Nome");
 
                 int pagina = listRequest.Pagination.Page;
                 int itensPagina = listRequest.Pagination.PageItems;
@@ -222,6 +232,21 @@ namespace BlockC_Api.Controllers.v1
                     response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
                     return response;
                 }
+
+                Decimal totalLinhas = database.BuscarTotalLancamentos(
+                    filtroEmpresa
+                    , filtroCategoria
+                    , filtroSubCategoria
+                    , filtroUnidade
+                    , filtroMes
+                    , filtroAno
+                    , filtroRegistroStatus
+                    , filtroNomeDocumento
+                    , usuarioID);
+
+                Decimal total = totalLinhas / itensPagina;
+                int totalPages = (int)Math.Ceiling(total);
+                listResponse.TotalPages = totalPages;
 
                 jsonResponse = JsonConvert.SerializeObject(listResponse).ToString();
                 response = Request.CreateResponse(System.Net.HttpStatusCode.OK);

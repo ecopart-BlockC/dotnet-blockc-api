@@ -1,4 +1,5 @@
 ﻿using Asp.Versioning;
+using BlockC_Api.Classes.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -16,8 +17,8 @@ namespace BlockC_Api.Controllers.v1
 {
     [EnableCors(origins: "*", headers: "*", methods: "*")]
     [ApiVersion("1.0")]
-    [System.Web.Http.Route("api/v{version:apiVersion}/GetGases")]
-    public class GetGasesController : ApiController
+    [System.Web.Http.Route("api/v{version:apiVersion}/GetTotalRegister")]
+    public class GetTotalRegisterController : ApiController
     {
         public async Task<HttpResponseMessage> Get([System.Web.Http.FromBody] JObject _request)
         {
@@ -28,10 +29,10 @@ namespace BlockC_Api.Controllers.v1
 
             try
             {
-                Classes.Json.GetGasesRequest gasesRequest = new Classes.Json.GetGasesRequest();
-                gasesRequest = JsonConvert.DeserializeObject<Classes.Json.GetGasesRequest>(_request.ToString());
+                Classes.Json.GetTotalRegisterRequest totalRequest = new Classes.Json.GetTotalRegisterRequest();
+                totalRequest = JsonConvert.DeserializeObject<Classes.Json.GetTotalRegisterRequest>(_request.ToString());
 
-                if (gasesRequest == null)
+                if (totalRequest == null)
                 {
                     genericResponse.mensagem = "Conteúdo da requisição inválido";
                     jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
@@ -40,17 +41,26 @@ namespace BlockC_Api.Controllers.v1
                     return response;
                 }
 
-                if (string.IsNullOrEmpty(gasesRequest.Token))
+                if (string.IsNullOrEmpty(totalRequest.Token))
                 {
-                    genericResponse.mensagem = "Token inválido";
+                    genericResponse.mensagem = "Necessário informar o token";
                     jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
-                    response = Request.CreateResponse(System.Net.HttpStatusCode.Unauthorized);
+                    response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
+                    response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
+                    return response;
+                }
+
+                if (totalRequest.CompanyID <= 0 && totalRequest.UserID <= 0)
+                {
+                    genericResponse.mensagem = "Necessário informar o id da empresa ou id do usuário";
+                    jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
+                    response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
                     response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
                     return response;
                 }
 
                 Classes.Database database = new Classes.Database();
-                if (!database.BuscarTokenExistente(gasesRequest.Token))
+                if (!database.BuscarTokenExistente(totalRequest.Token))
                 {
                     genericResponse.mensagem = "Token inválido";
                     jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
@@ -59,24 +69,27 @@ namespace BlockC_Api.Controllers.v1
                     return response;
                 }
 
-                Classes.Json.GetGasesResponse gasesResponse = new Classes.Json.GetGasesResponse();
-                if (!database.BuscarGases(ref gasesResponse))
+                string mensagem = string.Empty;
+                Classes.Json.GetTotalRegisterResponse totalResponse = new GetTotalRegisterResponse();
+                totalResponse.categoryTotals = new List<GetTotalRegisterResponse.CategoryTotal>();
+
+                if (!database.BuscarCategoriasTotalRegistros(totalRequest.CompanyID, totalRequest.UserID, ref totalResponse, ref mensagem))
                 {
-                    genericResponse.mensagem = "Não conseguimos buscar os gases cadastrados";
+                    genericResponse.mensagem = mensagem;
                     jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
                     response = Request.CreateResponse(System.Net.HttpStatusCode.NoContent);
                     response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
                     return response;
                 }
 
-                jsonResponse = JsonConvert.SerializeObject(gasesResponse).ToString();
+                jsonResponse = JsonConvert.SerializeObject(totalResponse).ToString();
                 response = Request.CreateResponse(System.Net.HttpStatusCode.OK);
                 response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
             }
             catch (Exception ex)
             {
-                Classes.Database.RegistrarErro("Server API", "GetGasesController", "GET", ex.Message, _request.ToString());
-                genericResponse.mensagem = "Não foi possível atender a solicitação";
+                Classes.Database.RegistrarErro("Server API", "GetTotalRegisterController", "Get", ex.Message, _request.ToString());
+                genericResponse.mensagem = string.Concat(ex.HResult.ToString(), " -> Não foi possível atender a solicitação");
                 jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
                 response = Request.CreateResponse(System.Net.HttpStatusCode.NoContent);
                 response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
@@ -84,7 +97,5 @@ namespace BlockC_Api.Controllers.v1
 
             return response;
         }
-
     }
-
 }

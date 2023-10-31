@@ -1,4 +1,5 @@
-﻿using BlockC_Api.Classes.Json;
+﻿using Asp.Versioning;
+using BlockC_Api.Classes.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -15,9 +16,10 @@ using System.Web.Mvc;
 namespace BlockC_Api.Controllers.v1
 {
     [EnableCors(origins: "*", headers: "*", methods: "*")]
+    [ApiVersion("1.0")]
+    [System.Web.Http.Route("api/v{version:apiVersion}/GetCompanyUsers")]
     public class GetCompanyUsersController : ApiController
     {
-
         public async Task<HttpResponseMessage> Get([System.Web.Http.FromBody] JObject _request)
         {
             HttpResponseMessage response;

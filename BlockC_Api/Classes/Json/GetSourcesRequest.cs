@@ -26,5 +26,13 @@ namespace BlockC_Api.Classes.Json
         [JsonProperty("sourceType", NullValueHandling = NullValueHandling.Ignore)]
         public string TipoDado { get; set; }
 
+        [JsonProperty("countryId", NullValueHandling = NullValueHandling.Ignore)]
+        public string PaisID { get; set; }
+
+        [JsonProperty("processType", NullValueHandling = NullValueHandling.Ignore)]
+        public string TipoProcesso { get; set; }
+
+
+
     }
 }

@@ -44,16 +44,41 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Asp.Versioning.Abstractions, Version=7.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Asp.Versioning.Abstractions.7.0.0\lib\netstandard2.0\Asp.Versioning.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Asp.Versioning.WebApi, Version=7.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Asp.Versioning.WebApi.7.1.0\lib\net472\Asp.Versioning.WebApi.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=4.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.4.1.0\lib\net472\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Extensions.Primitives, Version=7.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Primitives.7.0.0\lib\net462\Microsoft.Extensions.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Net.Http.Headers, Version=2.2.8.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Net.Http.Headers.2.2.8\lib\netstandard2.0\Microsoft.Net.Http.Headers.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.Cors, Version=5.2.9.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.Cors.5.2.9\lib\net45\System.Web.Cors.dll</HintPath>
     </Reference>
@@ -200,6 +225,8 @@
     <Compile Include="Classes\Json\GetSourcesResponse.cs" />
     <Compile Include="Classes\Json\GetSubCategoriesRequest.cs" />
     <Compile Include="Classes\Json\GetSubCategoriesResponse.cs" />
+    <Compile Include="Classes\Json\GetTotalRegisterRequest.cs" />
+    <Compile Include="Classes\Json\GetTotalRegisterResponse.cs" />
     <Compile Include="Classes\Json\GetUserCompanyRequest.cs" />
     <Compile Include="Classes\Json\GetUserCompanyResponse.cs" />
     <Compile Include="Classes\Json\InventoryResultsRequest.cs" />
@@ -246,8 +273,11 @@
     <Compile Include="Controllers\v1\GetRegistryResultController.cs" />
     <Compile Include="Controllers\v1\GetSourcesController.cs" />
     <Compile Include="Controllers\v1\GetSubCategoriesController.cs" />
+    <Compile Include="Controllers\v1\GetTotalRegisterController.cs" />
     <Compile Include="Controllers\v1\GetUserCompanyController.cs" />
     <Compile Include="Controllers\v1\InventoryResultsController.cs" />
+    <Compile Include="Controllers\v2\GetDocumentController.cs" />
+    <Compile Include="Controllers\v2\LargeFileController.cs" />
     <Compile Include="Controllers\v1\ListRegistriesController.cs" />
     <Compile Include="Controllers\v1\LoginUserController.cs" />
     <Compile Include="Controllers\v1\LogoutUserController.cs" />
@@ -358,8 +388,10 @@
     <Folder Include="Views\GetRegistryResult\" />
     <Folder Include="Views\GetSources\" />
     <Folder Include="Views\GetSubCategory\" />
+    <Folder Include="Views\GetTotalRegister\" />
     <Folder Include="Views\GetUserCompany\" />
     <Folder Include="Views\InventoryResults\" />
+    <Folder Include="Views\LargeFile\" />
     <Folder Include="Views\ListRegistries\" />
     <Folder Include="Views\LoginUser\" />
     <Folder Include="Views\LogoutUser\" />
@@ -367,6 +399,7 @@
     <Folder Include="Views\RecoverPassword\" />
     <Folder Include="Views\RemoveCompany\" />
     <Folder Include="Views\SearchRegistry\" />
+    <Folder Include="Views\Teste\" />
     <Folder Include="Views\UpdateEmission\" />
     <Folder Include="Views\UpdateRegistry\" />
     <Folder Include="Views\UpdateUserCompanies\" />

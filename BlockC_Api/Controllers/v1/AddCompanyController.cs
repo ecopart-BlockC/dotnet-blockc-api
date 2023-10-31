@@ -1,4 +1,5 @@
-﻿using BlockC_Api.Classes.Json;
+﻿using Asp.Versioning;
+using BlockC_Api.Classes.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -15,9 +16,10 @@ using System.Web.Mvc;
 namespace BlockC_Api.Controllers.v1
 {
     [EnableCors(origins: "*", headers: "*", methods: "*")]
+    [ApiVersion("1.0")]
+    [System.Web.Http.Route("api/v{version:apiVersion}/AddCompany")]
     public class AddCompanyController : ApiController
     {
-
         public async Task<HttpResponseMessage> Post([System.Web.Http.FromBody] JObject _addCompanyRequest)
         {
             HttpResponseMessage response;
@@ -82,13 +84,30 @@ namespace BlockC_Api.Controllers.v1
                 }
 
                 string cnpj = companyRequest.CNPJ.Replace(".", "").Replace("-", "").Replace("/", "");
-                if (database.ValidarCNPJ(cnpj))
+                if (companyRequest.MatrizID == 0)
                 {
-                    genericResponse.mensagem = "CNPJ informado já existe";
-                    jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
-                    response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
-                    response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
-                    return response;
+                    if (database.ValidarCNPJ(cnpj))
+                    {
+                        genericResponse.mensagem = "CNPJ informado já existe";
+                        jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
+                        response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
+                        response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
+                        return response;
+                    }
+                }
+                else
+                {
+                    if (!database.ValidarCNPJMatriz(cnpj, companyRequest.MatrizID))
+                    {
+                        if (database.ValidarCNPJ(cnpj))
+                        {
+                            genericResponse.mensagem = "CNPJ informado já existe";
+                            jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
+                            response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
+                            response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
+                            return response;
+                        }
+                    }
                 }
 
                 int matriz = 0;

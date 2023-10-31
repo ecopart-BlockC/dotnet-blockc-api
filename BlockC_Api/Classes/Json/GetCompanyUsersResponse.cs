@@ -29,8 +29,13 @@ namespace BlockC_Api.Classes.Json
         [JsonProperty("email")]
         public string Email { get; set; }
 
+        [JsonProperty("active")]
+        public Boolean Ativo { get; set; }
+
         [JsonProperty("companies")]
         public List<userCompanies> Empresas { get; set; }
+
+
     }
 
 }

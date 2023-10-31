@@ -12,9 +12,11 @@ using System.Linq;
 using System.Reflection;
 using System.Web;
 using System.Web.Helpers;
+using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Xml;
 using System.Xml.Linq;
+using static BlockC_Api.Classes.Json.GetCountriesResponse;
 using static BlockC_Api.Classes.Json.RegistriesResponseCollection;
 
 namespace BlockC_Api.Classes
@@ -233,6 +235,38 @@ namespace BlockC_Api.Classes
             return retorno;
         }
 
+        public Boolean ValidarCNPJMatriz(string cnpj, long matrizID)
+        {
+            Boolean retorno = false;
+
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Buscar_Empresa_MatrizCNPJ", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("varCNPJ", cnpj);
+                        varComm.Parameters.AddWithValue("varMatrizID", matrizID);
+
+                        using (SqlDataReader reader = varComm.ExecuteReader(System.Data.CommandBehavior.CloseConnection))
+                        {
+                            retorno = reader.HasRows;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RegistrarErro("Server API", "Database.cs", "ValidarCNPJMatriz", ex.Message, string.Empty);
+                retorno = false;
+            }
+
+            return retorno;
+        }
+
         public long GravarEmpresa(long MatrizID, int Matriz, string RazaoSocial, string CNPJ, int Emissao, string Setor, string Cidade, string UF, string Pais, int Participacao, Decimal Percentual, int ControleOperacional)
         {
             long retorno = 0;
@@ -246,7 +280,7 @@ namespace BlockC_Api.Classes
                     using (SqlCommand varComm = new SqlCommand("usp_Gravar_Empresa", varConn))
                     {
                         varComm.CommandType = System.Data.CommandType.StoredProcedure;
-                        
+
                         if (MatrizID <= 0)
                         {
                             varComm.Parameters.AddWithValue("varMatrizID", null);
@@ -254,7 +288,7 @@ namespace BlockC_Api.Classes
                         else
                         {
                             varComm.Parameters.AddWithValue("varMatrizID", MatrizID);
-                        }                            
+                        }
 
                         varComm.Parameters.AddWithValue("varMatriz", Matriz);
                         varComm.Parameters.AddWithValue("varRazaoSocial", RazaoSocial);
@@ -344,7 +378,7 @@ namespace BlockC_Api.Classes
                                 if (senha != senhaDB)
                                     retorno.Clear();
 
-                            }                                
+                            }
                         }
                     }
                 }
@@ -427,7 +461,7 @@ namespace BlockC_Api.Classes
                     {
                         varComm.CommandType = System.Data.CommandType.StoredProcedure;
                         varComm.Parameters.AddWithValue("varUsuarioID", usuarioID);
-                        
+
                         using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
                         {
                             retorno = myReader.HasRows;
@@ -500,7 +534,7 @@ namespace BlockC_Api.Classes
 
                                 if (aprovado == 1)
                                     retorno = true;
-                            }                  
+                            }
                         }
                     }
                 }
@@ -851,7 +885,7 @@ namespace BlockC_Api.Classes
                             if (!myReader.HasRows) return;
 
                             companies.Filiais = new List<BranchesList>();
-                            
+
                             while (myReader.Read())
                             {
                                 branches = new BranchesList();
@@ -920,6 +954,7 @@ namespace BlockC_Api.Classes
                                 userList.Sobrenome = myReader["Usuario_Sobrenome"].ToString();
                                 userList.Tipo = myReader["Usuario_Tipo"].ToString();
                                 userList.Email = myReader["Usuario_Email"].ToString();
+                                userList.Ativo = (myReader["Usuario_Ativo"].ToString() == "1" ? true : false);
 
                                 BuscarUsuarioEmpresas(Convert.ToInt64(myReader["Usuario_ID"].ToString()), ref userList, ref companies);
                                 userCompanyResponse.UsersList.Add(userList);
@@ -1417,7 +1452,7 @@ namespace BlockC_Api.Classes
 
                         if (CompanyID > 0)
                             varComm.Parameters.AddWithValue("lancCompanyID", CompanyID);
-                        
+
                         if (CategoryID > 0)
                             varComm.Parameters.AddWithValue("lancCategoryID", CategoryID);
 
@@ -1456,7 +1491,7 @@ namespace BlockC_Api.Classes
                             varComm.Parameters.AddWithValue("lancDocumentID", documentID);
 
                         varComm.Parameters.AddWithValue("lancCreatedByID", CreatedByID);
-                        varComm.Parameters.AddWithValue("lancStatus", entryStatus);                   
+                        varComm.Parameters.AddWithValue("lancStatus", entryStatus);
 
                         System.Guid lancamento = (Guid)varComm.ExecuteScalar();
                         entryID = lancamento.ToString();
@@ -1496,6 +1531,179 @@ namespace BlockC_Api.Classes
                 RegistrarErro("Server API", "Database.cs", "DesativarLancamento", ex.Message, string.Empty);
                 retorno = false;
             }
+
+            return retorno;
+        }
+
+        public Decimal BuscarTotalLancamentos(string filtroEmpresa
+            , string filtroCategoria
+            , string filtroSubCategoria
+            , string filtroUnidade
+            , string filtroMes
+            , string filtroAno
+            , string filtroRegistroStatus
+            , string filtroNomeDocumento
+            , long usuarioID)
+        {
+            Decimal retorno = 0;
+
+            try
+            {
+                string query = string.Empty;
+                query = "SELECT DISTINCT";
+                query += "    COUNT(lanc.ID) AS TotalRows ";
+                query += "FROM ";
+                query += "    tbl_lancamento lanc ";
+                query += "    LEFT OUTER JOIN tbl_lancamento_arquivo larq ON larq.LancamentoID = lanc.ID ";
+                query += "    LEFT OUTER JOIN tbl_arquivo arq ON larq.ArquivoID = arq.ID ";
+                query += "    INNER JOIN tbl_empresa emp ON lanc.EmpresaID = emp.ID ";
+                query += "WHERE ";
+                query += "    lanc.Ativo = 1 ";
+                query += "    AND emp.Ativo = 1 ";
+                query += "    AND lanc.EmpresaID IN (SELECT empu.EmpresaID FROM tbl_empresa_usuario empu INNER JOIN tbl_empresa emp2 ON empu.EmpresaID = emp2.ID WHERE emp2.Ativo = 1 AND empu.UsuarioID = " + usuarioID + ") ";
+
+                if (!string.IsNullOrEmpty(filtroNomeDocumento))
+                {
+                    query += "AND arq.Nome LIKE '%" + filtroNomeDocumento + "%' ";
+                }
+
+                if (!string.IsNullOrEmpty(filtroRegistroStatus))
+                {
+                    query += "AND lanc.StatusRegistro IN (";
+
+                    string[] registros = filtroRegistroStatus.Split(',');
+                    foreach (string registro in registros)
+                    {
+                        query += string.Concat("'", registro, "',");
+                    }
+
+                    if (query.EndsWith(","))
+                        query = query.Remove(query.Length - 1, 1);
+
+                    query += ") ";
+                }
+
+                if (!string.IsNullOrEmpty(filtroMes))
+                {
+                    query += "AND lanc.MesReferencia IN (";
+
+                    string[] registros = filtroMes.Split(',');
+                    foreach (string registro in registros)
+                    {
+                        query += string.Concat(registro, ",");
+                    }
+
+                    if (query.EndsWith(","))
+                        query = query.Remove(query.Length - 1, 1);
+
+                    query += ") ";
+                }
+
+                if (!string.IsNullOrEmpty(filtroAno))
+                {
+                    query += "AND lanc.AnoReferencia IN (";
+
+                    string[] registros = filtroAno.Split(',');
+                    foreach (string registro in registros)
+                    {
+                        query += string.Concat(registro, ",");
+                    }
+
+                    if (query.EndsWith(","))
+                        query = query.Remove(query.Length - 1, 1);
+
+                    query += ") ";
+                }
+
+                if (!string.IsNullOrEmpty(filtroUnidade))
+                {
+                    query += "AND lanc.UnidadeMedida IN (";
+
+                    string[] registros = filtroUnidade.Split(',');
+                    foreach (string registro in registros)
+                    {
+                        query += string.Concat("'", registro, "',");
+                    }
+
+                    if (query.EndsWith(","))
+                        query = query.Remove(query.Length - 1, 1);
+
+                    query += ") ";
+                }
+
+                if (!string.IsNullOrEmpty(filtroSubCategoria))
+                {
+                    query += "AND lanc.SubCategoriaID IN (";
+
+                    string[] registros = filtroSubCategoria.Split(',');
+                    foreach (string registro in registros)
+                    {
+                        if (registro != "0")
+                            query += string.Concat(registro, ",");
+                    }
+
+                    if (query.EndsWith(","))
+                        query = query.Remove(query.Length - 1, 1);
+
+                    query += ") ";
+                }
+
+                if (!string.IsNullOrEmpty(filtroCategoria))
+                {
+                    query += "AND lanc.CategoriaID IN (";
+
+                    string[] registros = filtroCategoria.Split(',');
+                    foreach (string registro in registros)
+                    {
+                        if (registro != "0")
+                            query += string.Concat(registro, ",");
+                    }
+
+                    if (query.EndsWith(","))
+                        query = query.Remove(query.Length - 1, 1);
+
+                    query += ") ";
+                }
+
+                if (!string.IsNullOrEmpty(filtroEmpresa))
+                {
+                    query += "AND lanc.EmpresaID IN (";
+
+                    string[] registros = filtroEmpresa.Split(',');
+                    foreach (string registro in registros)
+                    {
+                        if (registro != "0")
+                            query += string.Concat(registro, ",");
+                    }
+
+                    if (query.EndsWith(","))
+                        query = query.Remove(query.Length - 1, 1);
+
+                    query += ") ";
+                }
+
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand(query, varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.Text;
+
+                        using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
+                        {
+                            while (myReader.Read())
+                            {
+                                Decimal.TryParse(myReader["TotalRows"].ToString(), out retorno);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RegistrarErro("Server API", "Database.cs", "BuscarTotalLancamentos", ex.Message, string.Empty);
+           }
 
             return retorno;
         }
@@ -2402,7 +2610,8 @@ namespace BlockC_Api.Classes
             }
         }
 
-        public Boolean BuscarFontes(ref Classes.Json.GetSourcesResponse sourcesResponse, int Escopo, int CategoriaID, int SubCategoriaID, int EmpresaID, string tipoDado)
+        public Boolean BuscarFontes(ref Classes.Json.GetSourcesResponse sourcesResponse
+            , int Escopo, int CategoriaID, int SubCategoriaID, int EmpresaID, string tipoDado, string tipoProcesso, string paisID)
         {
             Boolean retorno = true;
 
@@ -2420,6 +2629,8 @@ namespace BlockC_Api.Classes
                         varComm.Parameters.AddWithValue("SubCategoriaID", SubCategoriaID);
                         varComm.Parameters.AddWithValue("EmpresaID", EmpresaID);
                         varComm.Parameters.AddWithValue("TipoDado", tipoDado);
+                        varComm.Parameters.AddWithValue("TipoProcesso", tipoProcesso);
+                        varComm.Parameters.AddWithValue("PaisID", paisID);
 
                         using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
                         {
@@ -2441,6 +2652,7 @@ namespace BlockC_Api.Classes
                                 source.FuelName = myReader["FuelName"].ToString();
                                 source.SourceType = myReader["SourceType"].ToString();
                                 source.TranspType = string.Empty;
+                                source.ProcessType = myReader["ProcessType"].ToString();
 
                                 //source.pci_tj_gg = Convert.ToDouble(myReader["pci_tj_gg"].ToString());
                                 //source.dens_kg_un = Convert.ToDouble(myReader["dens_kg_un"].ToString());
@@ -3487,6 +3699,46 @@ namespace BlockC_Api.Classes
             {
                 RegistrarErro("Server API", "Database.cs", "BuscarPaisLista", ex.Message, string.Empty);
                 retorno = "ERRO";
+            }
+
+            return retorno;
+        }
+
+        public Boolean BuscarCategoriasTotalRegistros(long CompanyID, long UserID, ref Classes.Json.GetTotalRegisterResponse totalResponse, ref string mensagem)
+        {
+            Boolean retorno = true;
+
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Buscar_Categoria_TotalRegistro", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("usuarioID", UserID);
+                        varComm.Parameters.AddWithValue("empresaID", CompanyID);
+
+                        using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
+                        {
+                            while (myReader.Read())
+                            {
+                                Classes.Json.GetTotalRegisterResponse.CategoryTotal category = new GetTotalRegisterResponse.CategoryTotal();
+                                category.CategoryID = myReader.GetInt32(myReader.GetOrdinal("CategoriaID"));
+                                category.Category = myReader.GetString(myReader.GetOrdinal("Categoria"));
+                                category.Total = myReader.GetInt32(myReader.GetOrdinal("TotalRegistro"));
+                                totalResponse.categoryTotals.Add(category);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RegistrarErro("Server API", "Database.cs", "BuscarCategoriasTotalRegistros", ex.Message, string.Empty);
+                mensagem = string.Concat(ex.HResult.ToString(), " -> Não foi possível buscar o total de registros por categoria");
+                retorno = false;
             }
 
             return retorno;

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Asp.Versioning;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,8 @@ using System.Web.Mvc;
 namespace BlockC_Api.Controllers.v1
 {
     [EnableCors(origins: "*", headers: "*", methods: "*")]
+    [ApiVersion("1.0")]
+    [System.Web.Http.Route("api/v{version:apiVersion}/GetSources")]
     public class GetSourcesController : ApiController
     {
         public async Task<HttpResponseMessage> Get([System.Web.Http.FromBody] JObject _request)
@@ -74,8 +77,16 @@ namespace BlockC_Api.Controllers.v1
                 if (sourceRequest.TipoDado != null)
                     tipoDado = sourceRequest.TipoDado;
 
+                string tipoProcesso = string.Empty;
+                if (sourceRequest.TipoProcesso != null)
+                    tipoProcesso = sourceRequest.TipoProcesso;
+
+                string paisID = string.Empty;
+                if (sourceRequest.PaisID != null)
+                    paisID = sourceRequest.PaisID;
+
                 Classes.Json.GetSourcesResponse sourcesResponse = new Classes.Json.GetSourcesResponse();
-                if (!database.BuscarFontes(ref sourcesResponse, escopo, sourceRequest.CategoriaID, sourceRequest.SubCategoriaID, sourceRequest.EmpresaID, tipoDado))
+                if (!database.BuscarFontes(ref sourcesResponse, escopo, sourceRequest.CategoriaID, sourceRequest.SubCategoriaID, sourceRequest.EmpresaID, tipoDado, tipoProcesso, paisID))
                 {
                     genericResponse.mensagem = "Não conseguimos buscar as Fontes cadastradas";
                     jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
