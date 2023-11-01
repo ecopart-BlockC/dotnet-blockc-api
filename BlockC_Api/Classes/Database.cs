@@ -1,23 +1,8 @@
-﻿using Antlr.Runtime.Misc;
-using BlockC_Api.Classes.Json;
-using Microsoft.Win32;
-using Newtonsoft.Json.Linq;
+﻿using BlockC_Api.Classes.Json;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Reflection;
-using System.Web;
-using System.Web.Helpers;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Xml;
-using System.Xml.Linq;
-using static BlockC_Api.Classes.Json.GetCountriesResponse;
-using static BlockC_Api.Classes.Json.RegistriesResponseCollection;
 
 namespace BlockC_Api.Classes
 {
@@ -1703,7 +1688,7 @@ namespace BlockC_Api.Classes
             catch (Exception ex)
             {
                 RegistrarErro("Server API", "Database.cs", "BuscarTotalLancamentos", ex.Message, string.Empty);
-           }
+            }
 
             return retorno;
         }
@@ -1718,20 +1703,20 @@ namespace BlockC_Api.Classes
                 string query = string.Empty;
                 query = "SELECT DISTINCT";
                 query += "    lanc.ID AS EntryID ";
-	            query += "    , lanc.EmpresaID AS EntryEmpresaID ";
-	            query += "    , emp.RazaoSocial AS EntryEmpresaRazao ";
+                query += "    , lanc.EmpresaID AS EntryEmpresaID ";
+                query += "    , emp.RazaoSocial AS EntryEmpresaRazao ";
                 query += "    , lanc.CategoriaID AS EntryCategoriaID ";
-	            query += "    , (SELECT Nome FROM tbl_categoria WHERE ID = lanc.CategoriaID) AS EntryCategoriaNome ";
-	            query += "    , (SELECT COUNT(ID) FROM tbl_lancamento WHERE Ativo = 1 AND CategoriaID = lanc.CategoriaID AND EmpresaID = lanc.EmpresaID) AS EntryCategoriaQtde ";
+                query += "    , (SELECT Nome FROM tbl_categoria WHERE ID = lanc.CategoriaID) AS EntryCategoriaNome ";
+                query += "    , (SELECT COUNT(ID) FROM tbl_lancamento WHERE Ativo = 1 AND CategoriaID = lanc.CategoriaID AND EmpresaID = lanc.EmpresaID) AS EntryCategoriaQtde ";
                 query += "    , lanc.SubCategoriaID AS EntrySubCategoriaID ";
-	            query += "    , (SELECT Nome FROM tbl_subcategoria WHERE ID = lanc.SubCategoriaID) AS EntrySubCategoriaNome ";
+                query += "    , (SELECT Nome FROM tbl_subcategoria WHERE ID = lanc.SubCategoriaID) AS EntrySubCategoriaNome ";
                 query += "    , lanc.UnidadeMedida AS EntryUnidade ";
-	            query += "    , lanc.Valor AS EntryValor ";
-	            query += "    , lanc.TipoDocumento AS EntryTipoDoc ";
-	            query += "    , lanc.Comentarios AS EntryComentarios ";
-	            query += "    , lanc.StatusRegistro AS EntryStatusReg ";
-	            query += "    , lanc.RegistradoPor AS EntryRegistradoPor ";
-	            query += "    , (SELECT CONCAT(Nome, ' ', Sobrenome) FROM tbl_usuario WHERE ID = lanc.RegistradoPor) AS EntryRegistradoPorNome ";
+                query += "    , lanc.Valor AS EntryValor ";
+                query += "    , lanc.TipoDocumento AS EntryTipoDoc ";
+                query += "    , lanc.Comentarios AS EntryComentarios ";
+                query += "    , lanc.StatusRegistro AS EntryStatusReg ";
+                query += "    , lanc.RegistradoPor AS EntryRegistradoPor ";
+                query += "    , (SELECT CONCAT(Nome, ' ', Sobrenome) FROM tbl_usuario WHERE ID = lanc.RegistradoPor) AS EntryRegistradoPorNome ";
                 query += "    , FORMAT(lanc.DataRegistro, 'dd/MM/yyyy') AS EntryDataReg ";
                 query += "    , COALESCE(lanc.MesReferencia, 0) AS EntryMesRef ";
                 query += "    , COALESCE(lanc.AnoReferencia, 0) AS EntryAnoRef ";
@@ -1742,7 +1727,7 @@ namespace BlockC_Api.Classes
                 query += "    , (SELECT Combustivel FROM tbl_fonte WHERE ID = lanc.FonteID) AS EntryFuelName ";
                 query += "    , COALESCE((SELECT [calc_tco2e] FROM tbl_emissao_calc WHERE LancamentoID = lanc.ID), 0) AS ResultTco2e ";
                 query += "FROM ";
-                query += "    tbl_lancamento lanc ";                
+                query += "    tbl_lancamento lanc ";
                 query += "    LEFT OUTER JOIN tbl_lancamento_arquivo larq ON larq.LancamentoID = lanc.ID ";
                 query += "    LEFT OUTER JOIN tbl_arquivo arq ON larq.ArquivoID = arq.ID ";
                 query += "    INNER JOIN tbl_empresa emp ON lanc.EmpresaID = emp.ID ";
@@ -1879,7 +1864,7 @@ namespace BlockC_Api.Classes
                 {
                     query += " ORDER BY emp.RazaoSocial ";
                 }
-                
+
                 query += " OFFSET (" + page + " - 1) * " + pageItems + " ROWS FETCH NEXT " + pageItems + " ROWS ONLY";
 
                 using (SqlConnection varConn = new SqlConnection(connString))
@@ -2557,7 +2542,7 @@ namespace BlockC_Api.Classes
                         varComm.CommandType = System.Data.CommandType.StoredProcedure;
                         varComm.Parameters.AddWithValue("categoryID", categoryID);
                         varComm.Parameters.AddWithValue("subCategoryID", subCategoryID);
-                        
+
                         using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
                         {
                             retorno = myReader.HasRows;
@@ -2872,7 +2857,7 @@ namespace BlockC_Api.Classes
                         varComm.Parameters.AddWithValue("Ano", Ano);
                         varComm.Parameters.AddWithValue("Fator", Fator);
                         varComm.Parameters.AddWithValue("UsuarioID", UsuarioID);
-                        varComm.ExecuteNonQuery();  
+                        varComm.ExecuteNonQuery();
                     }
                 }
             }
@@ -3074,7 +3059,7 @@ namespace BlockC_Api.Classes
                                     else
                                         resultResponse.ef_tch4_t = null;
 
-                                    if (Convert.ToDecimal(myReader["ef_tch4_tj"].ToString())> 0)
+                                    if (Convert.ToDecimal(myReader["ef_tch4_tj"].ToString()) > 0)
                                         resultResponse.ef_tch4_tj = Convert.ToDecimal(myReader["ef_tch4_tj"].ToString());
                                     else
                                         resultResponse.ef_tch4_tj = null;
@@ -3328,13 +3313,13 @@ namespace BlockC_Api.Classes
                                     if (!string.IsNullOrEmpty(myReader["formula_tco2e"].ToString()))
                                         resultResponse.formula_tco2e = myReader["formula_tco2e"].ToString();
                                     else
-                                        resultResponse.formula_tco2e = null;                                
-                                
+                                        resultResponse.formula_tco2e = null;
+
                                     if (!string.IsNullOrEmpty(myReader["CalculoTco2"].ToString()))
                                         resultResponse.Calculo_tco2 = myReader["CalculoTco2"].ToString();
                                     else
-                                        resultResponse.Calculo_tco2 = null;                                
-                                
+                                        resultResponse.Calculo_tco2 = null;
+
                                     if (!string.IsNullOrEmpty(myReader["CalculoTch4"].ToString()))
                                         resultResponse.Calculo_tch4 = myReader["CalculoTch4"].ToString();
                                     else
@@ -3358,28 +3343,28 @@ namespace BlockC_Api.Classes
                                     if (!string.IsNullOrEmpty(myReader["CalculoTco2_bio"].ToString()))
                                         resultResponse.Calculo_tco2_bio = myReader["CalculoTco2_bio"].ToString();
                                     else
-                                        resultResponse.Calculo_tco2_bio = null;                                
-                                
+                                        resultResponse.Calculo_tco2_bio = null;
+
                                     if (!string.IsNullOrEmpty(myReader["CalculoThfc"].ToString()))
                                         resultResponse.Calculo_thfc = myReader["CalculoThfc"].ToString();
                                     else
-                                        resultResponse.Calculo_thfc = null;                                
-                                
+                                        resultResponse.Calculo_thfc = null;
+
                                     if (!string.IsNullOrEmpty(myReader["CalculoTpfc"].ToString()))
                                         resultResponse.Calculo_tpfc = myReader["CalculoTpfc"].ToString();
                                     else
-                                        resultResponse.Calculo_tpfc = null;                                
-                                
+                                        resultResponse.Calculo_tpfc = null;
+
                                     if (!string.IsNullOrEmpty(myReader["CalculoTsf6"].ToString()))
                                         resultResponse.Calculo_tsf6 = myReader["CalculoTsf6"].ToString();
                                     else
-                                        resultResponse.Calculo_tsf6 = null;                                
-                                
+                                        resultResponse.Calculo_tsf6 = null;
+
                                     if (!string.IsNullOrEmpty(myReader["CalculoTnf3"].ToString()))
                                         resultResponse.Calculo_tnf3 = myReader["CalculoTnf3"].ToString();
                                     else
-                                        resultResponse.Calculo_tnf3 = null;                                
-                                
+                                        resultResponse.Calculo_tnf3 = null;
+
                                     if (!string.IsNullOrEmpty(myReader["CalculoTco2e"].ToString()))
                                         resultResponse.Calculo_tco2e = myReader["CalculoTco2e"].ToString();
                                     else
@@ -3744,6 +3729,62 @@ namespace BlockC_Api.Classes
             return retorno;
         }
 
+        public Boolean GravarInformacoesInstitucionais(long CompanyID, string Content, string UsuarioID)
+        {
+            Boolean retorno = true;
+
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Gravar_Informacoes_Institucionais", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("varEmpresaID", CompanyID);
+                        varComm.Parameters.AddWithValue("varConteudo", Content);
+                        varComm.Parameters.AddWithValue("varUsuarioID", UsuarioID);
+                        varComm.Parameters.AddWithValue("varAtivo", 1);
+                        varComm.ExecuteNonQuery();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                RegistrarErro("Server API", "Database.cs", "GravarInformacoesInstitucionais", ex.Message, string.Empty);
+                retorno = false;
+            }
+
+            return retorno;
+        }
+
+        public void BuscarInformacoesInstitucionais(long CompanyID, ref DataTable dataTable)
+        {
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Buscar_Informacoes_Institucionais", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("varCompanyId", CompanyID);
+
+                        using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
+                        {
+                            dataTable.Load(myReader);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RegistrarErro("Server API", "Database.cs", "BuscarInformacoesInstitucionais", ex.Message, string.Empty);
+            }
+        }
 
     }
 }
