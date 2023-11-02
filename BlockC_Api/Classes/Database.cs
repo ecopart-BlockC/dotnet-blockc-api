@@ -3760,8 +3760,10 @@ namespace BlockC_Api.Classes
             return retorno;
         }
 
-        public void BuscarInformacoesInstitucionais(long CompanyID, ref DataTable dataTable)
+        public Boolean BuscarInformacoesInstitucionais(long CompanyID, ref Classes.Json.GetInstitutionalInformationResponse resultResponse)
         {
+            Boolean retorno = true;
+
             try
             {
                 using (SqlConnection varConn = new SqlConnection(connString))
@@ -3775,7 +3777,14 @@ namespace BlockC_Api.Classes
 
                         using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
                         {
-                            dataTable.Load(myReader);
+                            if (myReader.HasRows)
+                            {
+                                while (myReader.Read())
+                                {
+                                    resultResponse.institutionalInformationId = Convert.ToInt16(myReader["institutionalInformationId"]);
+                                    resultResponse.Content = myReader["Content"].ToString();
+                                }
+                            }
                         }
                     }
                 }
@@ -3784,6 +3793,8 @@ namespace BlockC_Api.Classes
             {
                 RegistrarErro("Server API", "Database.cs", "BuscarInformacoesInstitucionais", ex.Message, string.Empty);
             }
+
+            return retorno;
         }
 
     }

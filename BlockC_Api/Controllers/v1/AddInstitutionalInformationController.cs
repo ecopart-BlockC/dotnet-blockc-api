@@ -31,7 +31,7 @@ namespace BlockC_Api.Controllers.v1
 
             try
             {
-                Classes.Json.AddInstitutionalInformationRequest institutionalInformationRequest = new Classes.Json.AddInstitutionalInformationRequest;
+                Classes.Json.AddInstitutionalInformationRequest institutionalInformationRequest = new Classes.Json.AddInstitutionalInformationRequest();
                 institutionalInformationRequest = JsonConvert.DeserializeObject<Classes.Json.AddInstitutionalInformationRequest>(_request.ToString());
 
 

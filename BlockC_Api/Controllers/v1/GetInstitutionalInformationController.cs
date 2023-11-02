@@ -61,13 +61,22 @@ namespace BlockC_Api.Controllers.v1
                     return response;
                 }
 
-                // TODO 
                 Classes.Json.GetInstitutionalInformationResponse institutionalInformationResponse = new GetInstitutionalInformationResponse();
-                
+                if (!database.BuscarInformacoesInstitucionais(institutionalInformationRequest.CompanyId, ref institutionalInformationResponse))
+                {
+                    genericResponse.mensagem = "Não foi possível encontrar informações institucionais para a empresa";
+                    jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
+                    response = Request.CreateResponse(System.Net.HttpStatusCode.NoContent);
+                    response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
+                }
+
+                jsonResponse = JsonConvert.SerializeObject(institutionalInformationResponse).ToString();
+                response = Request.CreateResponse(System.Net.HttpStatusCode.OK);
+                response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
             }
             catch (Exception ex)
             {
-                Classes.Database.RegistrarErro("Server API", "GetSubCategoryController", "Get", ex.Message, _request.ToString());
+                Classes.Database.RegistrarErro("Server API", "GetInstitutionalInformationController", "Get", ex.Message, _request.ToString());
 
                 genericResponse.mensagem = "Não foi possível atender a solicitação";
                 jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
