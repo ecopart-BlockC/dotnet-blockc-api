@@ -209,6 +209,8 @@
     <Compile Include="Classes\Json\DeleteRegistryRequest.cs" />
     <Compile Include="Classes\Json\DeleteUserRequest.cs" />
     <Compile Include="Classes\Json\GenericResponse.cs" />
+    <Compile Include="Classes\Json\GetAuditCertificateResponse.cs" />
+    <Compile Include="Classes\Json\GetAuditRegistryResponse.cs" />
     <Compile Include="Classes\Json\GetCategoriesRequest.cs" />
     <Compile Include="Classes\Json\GetCategoriesResponse.cs" />
     <Compile Include="Classes\Json\GetCompanyUsersRequest.cs" />
@@ -219,6 +221,7 @@
     <Compile Include="Classes\Json\GetDocumentResponse.cs" />
     <Compile Include="Classes\Json\GetGasesRequest.cs" />
     <Compile Include="Classes\Json\GetGasesResponse.cs" />
+    <Compile Include="Classes\Json\GetInstitutionalInformationResponse.cs" />
     <Compile Include="Classes\Json\GetRegistryResultRequest.cs" />
     <Compile Include="Classes\Json\GetRegistryResultResponse.cs" />
     <Compile Include="Classes\Json\GetSourcesRequest.cs" />
@@ -335,7 +338,6 @@
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\CollectionModelDescription.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ApiGroup.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\Api.cshtml" />
-    <Content Include="BlockCv2.pfx" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.esm.js" />
@@ -439,7 +441,8 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>BlockCv2.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>favicon.ico</ApplicationIcon>

@@ -32,7 +32,7 @@ namespace BlockC_Api.Classes.Json
         [JsonProperty("processType", NullValueHandling = NullValueHandling.Ignore)]
         public string TipoProcesso { get; set; }
 
-
-
+        [JsonProperty("calculation", NullValueHandling = NullValueHandling.Ignore)]
+        public string Calculos { get; set; }
     }
 }

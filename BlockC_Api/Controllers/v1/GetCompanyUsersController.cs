@@ -41,9 +41,18 @@ namespace BlockC_Api.Controllers.v1
                     return response;
                 }
 
-                if (string.IsNullOrEmpty(companyRequest.Token) || companyRequest.EmpresaID == 0)
+                if (string.IsNullOrEmpty(companyRequest.Token))
                 {
                     genericResponse.mensagem = "Necessário informar todos os campos";
+                    jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
+                    response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
+                    response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
+                    return response;
+                }
+
+                if (companyRequest.EmpresaLista == null)
+                {
+                    genericResponse.mensagem = "Necessário informar as empresas para consulta";
                     jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
                     response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
                     response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
@@ -61,19 +70,18 @@ namespace BlockC_Api.Controllers.v1
                 }
 
                 Classes.Json.GetCompanyUsersResponse userCompanyResponse = new GetCompanyUsersResponse();
-                string retorno = database.BuscarUsuarioLista(companyRequest.EmpresaID, ref userCompanyResponse);
-                if (retorno != "OK")
+                userCompanyResponse.UsersList = new List<CompanyUserList>();
+
+                Classes.Json.CompanyUserList userList = new CompanyUserList();
+
+                foreach (Classes.Json.GetCompanyUsersRequest.Companies emp in companyRequest.EmpresaLista)
                 {
-                    genericResponse.mensagem = retorno;
-                    jsonResponse = JsonConvert.SerializeObject(genericResponse).ToString();
-                    response = Request.CreateResponse(System.Net.HttpStatusCode.BadRequest);
-                    response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
-                    return response;
+                    database.BuscarUsuarioLista(emp.EmpresaID, companyRequest.UsuarioID, ref userCompanyResponse, ref userList);
                 }
 
                 jsonResponse = JsonConvert.SerializeObject(userCompanyResponse).ToString();
                 response = Request.CreateResponse(System.Net.HttpStatusCode.OK);
-                response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");            
+                response.Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json");
             }
             catch (Exception ex)
             {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Web;
+using static BlockC_Api.Classes.Json.UpdateRegistryList;
 
 namespace BlockC_Api.Classes.Json
 {
@@ -20,6 +21,12 @@ namespace BlockC_Api.Classes.Json
 
     public partial class RegistryList
     {
+        [JsonProperty("registryId", NullValueHandling = NullValueHandling.Ignore)]
+        public string RegistryID { get; set; }
+
+        [JsonProperty("countryId", NullValueHandling = NullValueHandling.Ignore)]
+        public string CountryID { get; set; }
+
         [JsonProperty("companyId", NullValueHandling = NullValueHandling.Ignore)]
         public long CompanyID { get; set; }
 
@@ -60,6 +67,15 @@ namespace BlockC_Api.Classes.Json
         [JsonProperty("customFields", NullValueHandling = NullValueHandling.Ignore)]
         public List<RegistryCustomFields> CustomFields { get; set; }
 
+        [JsonProperty("deletedDocuments", NullValueHandling = NullValueHandling.Ignore)]
+        public List<RegistryDeletedDocuments> DeletedDocuments { get; set; }
+
+        public partial class RegistryDeletedDocuments
+        {
+            [JsonProperty("documentId", NullValueHandling = NullValueHandling.Ignore)]
+            public string DocumentID { get; set; }
+        }
+
         public partial class RegistryCustomFields
         {
             [JsonProperty("fieldName", NullValueHandling = NullValueHandling.Ignore)]
@@ -68,7 +84,7 @@ namespace BlockC_Api.Classes.Json
             [JsonProperty("fieldValue", NullValueHandling = NullValueHandling.Ignore)]
             public decimal FieldValue { get; set; }
 
-            [JsonProperty("fieldLabel", NullValueHandling = NullValueHandling.Ignore)]
+            [JsonProperty("tagDescription", NullValueHandling = NullValueHandling.Ignore)]
             public string FieldLabel { get; set; }
         }
 

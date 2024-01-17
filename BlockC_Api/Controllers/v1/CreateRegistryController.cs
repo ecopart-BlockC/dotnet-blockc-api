@@ -82,6 +82,13 @@ namespace BlockC_Api.Controllers.v1
                 foreach (Classes.Json.RegistryList registry in entryRequest.RegistryList)
                 {
                     Classes.Json.RegistryResponseList registryResponse = new Classes.Json.RegistryResponseList();
+                    string registryID = string.Empty;
+
+                    if (!string.IsNullOrEmpty(registry.RegistryID))
+                    {
+                        registryID = registry.RegistryID;
+                        database.DesativarLancamento(registryID, registry.CreatedByID);
+                    }
 
                     //==========================================
                     //              GRAVAR LANCAMENTO
@@ -154,11 +161,15 @@ namespace BlockC_Api.Controllers.v1
                     if (!string.IsNullOrEmpty(registry.GasID))
                         gasID = registry.GasID;
 
+                    string countryID = string.Empty;
+                    if (!string.IsNullOrEmpty(registry.CountryID))
+                        countryID = registry.CountryID;
+
                     Int32.TryParse(registry.ReferenceYear.ToString(), out int referredYear);
                     Int32.TryParse(registry.ReferenceMonth.ToString(), out int referredMonth);
 
                     if (database.GravarLancamento(companyID, documentID, categoryID, subCategoryID, sourceID, unidade, entryValue, string.Empty, string.Empty
-                        , registry.CreatedByID, entryStatus, referredYear, referredMonth, gasID, ref entryID))
+                        , registry.CreatedByID, entryStatus, referredYear, referredMonth, gasID, countryID, ref entryID))
                     {
 
                         if (registry.CustomFields != null)
@@ -213,6 +224,11 @@ namespace BlockC_Api.Controllers.v1
                     //==========================================
                     //             GRAVAR DOCUMENTOS
                     //==========================================
+                    if (!string.IsNullOrEmpty(registryID))
+                    {
+                        database.TransferirLancamentoArquivo(registryID, entryID);
+                    }
+
                     if (registry.Documents == null)
                         continue;
 
@@ -250,7 +266,7 @@ namespace BlockC_Api.Controllers.v1
                         {
                             documentImage = Convert.FromBase64String(doc.DocumentImage);
                             docSize = doc.DocumentImage.Length;
-                        }                        
+                        }
 
                         string docType = (string.IsNullOrEmpty(doc.DocumentType)) ? "Não Informado" : doc.DocumentType;
 
@@ -282,7 +298,18 @@ namespace BlockC_Api.Controllers.v1
                         }
 
                         registryResponse.Documents.Add(responseDocuments);
-                    }                    
+                    }
+
+                    //==========================================
+                    //             DESABILITAR DOCUMENTOS
+                    //==========================================
+                    if (registry.DeletedDocuments != null)
+                    {
+                        foreach (Classes.Json.RegistryList.RegistryDeletedDocuments doc in registry.DeletedDocuments)
+                        {
+                            database.DesativarArquivo(entryID, doc.DocumentID);
+                        }
+                    }
 
                 }
 

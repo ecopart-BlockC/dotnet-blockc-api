@@ -9,7 +9,7 @@ namespace BlockC_Api.Classes.Json
     public class GetInstitutionalInformationResponse
     {
         [JsonProperty("institutionalInformationId")]
-        public int institutionalInformationId { get; set; }
+        public string institutionalInformationId { get; set; }
 
         [JsonProperty("content")]
         public string Content { get; set; }

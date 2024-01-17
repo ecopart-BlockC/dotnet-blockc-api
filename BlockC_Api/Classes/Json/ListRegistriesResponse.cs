@@ -34,7 +34,7 @@ namespace BlockC_Api.Classes.Json
         public string CategoryName { get; set; }
 
         [JsonProperty("categoryEntryCount")]
-        public Int64 CategoryEntryCount { get; set; } 
+        public Int64 CategoryEntryCount { get; set; }
 
         [JsonProperty("subcategoryId")]
         public int SubCategoryID { get; set; }
@@ -72,6 +72,9 @@ namespace BlockC_Api.Classes.Json
         [JsonProperty("fuelName")]
         public string FuelName { get; set; }
 
+        [JsonProperty("gasId")]
+        public string GasID { get; set; }
+
         [JsonProperty("resultTco2e")]
         public Double ResultTco2e { get; set; }
 
@@ -104,6 +107,9 @@ namespace BlockC_Api.Classes.Json
         {
             [JsonProperty("fieldName", NullValueHandling = NullValueHandling.Ignore)]
             public string FieldName { get; set; }
+
+            [JsonProperty("tagDescription", NullValueHandling = NullValueHandling.Ignore)]
+            public string FieldLabel { get; set; }
 
             [JsonProperty("fieldValue", NullValueHandling = NullValueHandling.Ignore)]
             public decimal FieldValue { get; set; }

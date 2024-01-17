@@ -1,8 +1,12 @@
 ﻿using BlockC_Api.Classes.Json;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
+using static BlockC_Api.Classes.Json.GetAuditRegistryResponse;
+using static BlockC_Api.Classes.Json.RegistriesResponseCollection;
 
 namespace BlockC_Api.Classes
 {
@@ -431,6 +435,7 @@ namespace BlockC_Api.Classes
 
             return retorno;
         }
+
 
         public Boolean VerificarUsuarioMaster(long usuarioID)
         {
@@ -904,7 +909,7 @@ namespace BlockC_Api.Classes
             }
         }
 
-        public string BuscarUsuarioLista(long EmpresaID, ref Classes.Json.GetCompanyUsersResponse userCompanyResponse)
+        public string BuscarUsuarioLista(long EmpresaID, long UsuarioID, ref Classes.Json.GetCompanyUsersResponse userCompanyResponse, ref Classes.Json.CompanyUserList userList)
         {
             string retorno = "OK";
 
@@ -918,6 +923,7 @@ namespace BlockC_Api.Classes
                     {
                         varComm.CommandType = System.Data.CommandType.StoredProcedure;
                         varComm.Parameters.AddWithValue("EmpresaID", EmpresaID);
+                        varComm.Parameters.AddWithValue("UsuarioID", UsuarioID);
 
                         using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
                         {
@@ -927,9 +933,8 @@ namespace BlockC_Api.Classes
                                 return retorno;
                             }
 
-                            Classes.Json.CompanyUserList userList = new CompanyUserList();
+                            //Classes.Json.CompanyUserList userList = new CompanyUserList();
                             Classes.Json.userCompanies companies = new userCompanies();
-                            userCompanyResponse.UsersList = new List<CompanyUserList>();
 
                             while (myReader.Read())
                             {
@@ -1031,6 +1036,7 @@ namespace BlockC_Api.Classes
 
             return retorno;
         }
+
 
         public Boolean BuscarCategorias(int Escopo, string categoriaModo, ref GetCategoriesResponse categoriesResponse)
         {
@@ -1421,7 +1427,7 @@ namespace BlockC_Api.Classes
 
         public Boolean GravarLancamento(long CompanyID, string documentID, int CategoryID, int SubCategoryID, int SourceID, string Unit, decimal EntryValue
             , string DocumentType, string Comments, long CreatedByID, string entryStatus, int referenceYear, int referenceMonth
-            , string GasID, ref string entryID)
+            , string GasID, string countryID, ref string entryID)
         {
             Boolean retorno = true;
 
@@ -1475,6 +1481,8 @@ namespace BlockC_Api.Classes
                         if (!string.IsNullOrEmpty(documentID))
                             varComm.Parameters.AddWithValue("lancDocumentID", documentID);
 
+
+                        varComm.Parameters.AddWithValue("lancCountryID", countryID);
                         varComm.Parameters.AddWithValue("lancCreatedByID", CreatedByID);
                         varComm.Parameters.AddWithValue("lancStatus", entryStatus);
 
@@ -1726,6 +1734,7 @@ namespace BlockC_Api.Classes
                 query += "    , (SELECT Nome FROM tbl_fonte WHERE ID = lanc.FonteID) AS EntrySourceName ";
                 query += "    , (SELECT Combustivel FROM tbl_fonte WHERE ID = lanc.FonteID) AS EntryFuelName ";
                 query += "    , COALESCE((SELECT [calc_tco2e] FROM tbl_emissao_calc WHERE LancamentoID = lanc.ID), 0) AS ResultTco2e ";
+                query += "    , COALESCE((SELECT CONVERT(CHAR(36), [GasID]) FROM tbl_fonte WHERE ID = lanc.FonteID), '') AS EntryGasID ";
                 query += "FROM ";
                 query += "    tbl_lancamento lanc ";
                 query += "    LEFT OUTER JOIN tbl_lancamento_arquivo larq ON larq.LancamentoID = lanc.ID ";
@@ -1925,6 +1934,11 @@ namespace BlockC_Api.Classes
                                 if (!string.IsNullOrEmpty(myReader["EntryFuelName"].ToString()))
                                     item.FuelName = myReader["EntryFuelName"].ToString();
 
+                                item.GasID = string.Empty;
+                                if (!string.IsNullOrEmpty(myReader["EntryGasID"].ToString()))
+                                    item.GasID = myReader["EntryGasID"].ToString();
+
+
                                 item.RegistryStatus = myReader["EntryStatusReg"].ToString();
                                 item.RegistryDate = Convert.ToDateTime(myReader["EntryDataReg"].ToString());
                                 item.RegisteredBy = myReader["EntryRegistradoPorNome"].ToString();
@@ -1961,7 +1975,7 @@ namespace BlockC_Api.Classes
                                     RegistriesResponseCollection.RegistryCustomFields field = new RegistriesResponseCollection.RegistryCustomFields();
                                     field.FieldName = row["CustomField_Campo"].ToString();
                                     field.FieldValue = result;
-
+                                    field.FieldLabel = (result <= 0) ? row["CustomField_Valor"].ToString() : string.Empty;
                                     item.CustomFields.Add(field);
                                 }
 
@@ -2236,6 +2250,7 @@ namespace BlockC_Api.Classes
 
             return retorno;
         }
+
 
         public Boolean BuscarEmissaoCalculosTotaisAno(string usuarioID, string[] filtroEmpresaID, string[] filtroAno, string[] filtroMes, ref Json.InventoryResultsResponse resultsResponse)
         {
@@ -2596,7 +2611,7 @@ namespace BlockC_Api.Classes
         }
 
         public Boolean BuscarFontes(ref Classes.Json.GetSourcesResponse sourcesResponse
-            , int Escopo, int CategoriaID, int SubCategoriaID, int EmpresaID, string tipoDado, string tipoProcesso, string paisID)
+            , int Escopo, int CategoriaID, int SubCategoriaID, int EmpresaID, string tipoDado, string tipoProcesso, string paisID, int Calculos)
         {
             Boolean retorno = true;
 
@@ -2616,6 +2631,7 @@ namespace BlockC_Api.Classes
                         varComm.Parameters.AddWithValue("TipoDado", tipoDado);
                         varComm.Parameters.AddWithValue("TipoProcesso", tipoProcesso);
                         varComm.Parameters.AddWithValue("PaisID", paisID);
+                        varComm.Parameters.AddWithValue("Calculo", Calculos);
 
                         using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
                         {
@@ -2985,6 +3001,55 @@ namespace BlockC_Api.Classes
             catch (Exception ex)
             {
                 RegistrarErro("Server API", "Database.cs", "BuscarLancamentosDoc", ex.Message, string.Empty);
+                retorno = true;
+            }
+
+            return retorno;
+        }
+
+        public Boolean BuscarLancamentosDocParaPasta(string empresaID, string folderPath, ref string empresa, ref string mensagem)
+        {
+            Boolean retorno = true;
+
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Buscar_Documento_Todos", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.CommandTimeout = 300;
+                        varComm.Parameters.AddWithValue("EmpresaID", empresaID);
+
+                        using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
+                        {
+                            while (myReader.Read())
+                            {
+                                empresa = myReader["DocumentoEmpresa"].ToString();
+                                string docID = myReader["DocumentoID"].ToString();
+                                string docName = myReader["DocumentoNome"].ToString();
+                                byte[] docBytes = (byte[])myReader["DocumentoImagem"];
+                                int i = 1;
+
+                                while (File.Exists(Path.Combine(folderPath, docName)))
+                                {
+                                    docName = docName.Replace(string.Concat("Cópia ", i - 1, " - "), string.Empty);
+                                    docName = string.Concat("Cópia ", i, " - ", docName);
+                                    i++;
+                                }
+
+                                File.WriteAllBytes(Path.Combine(folderPath, docName), docBytes);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                mensagem = string.Concat(ex.HResult, " -> Não foi salvar os documentos");
+                RegistrarErro("Server API", "Database.cs", "BuscarLancamentosDocParaPasta", ex.Message, string.Empty);
                 retorno = true;
             }
 
@@ -3729,7 +3794,7 @@ namespace BlockC_Api.Classes
             return retorno;
         }
 
-        public Boolean GravarInformacoesInstitucionais(long CompanyID, string Content, string UsuarioID)
+        public Boolean GravarInformacoesInstitucionais(long CompanyID, string Content, long UsuarioID, ref string novoID, ref string mensagem)
         {
             Boolean retorno = true;
 
@@ -3746,7 +3811,9 @@ namespace BlockC_Api.Classes
                         varComm.Parameters.AddWithValue("varConteudo", Content);
                         varComm.Parameters.AddWithValue("varUsuarioID", UsuarioID);
                         varComm.Parameters.AddWithValue("varAtivo", 1);
-                        varComm.ExecuteNonQuery();
+
+                        System.Guid id = (Guid)varComm.ExecuteScalar();
+                        novoID = id.ToString();
                     }
                 }
 
@@ -3754,6 +3821,7 @@ namespace BlockC_Api.Classes
             catch (Exception ex)
             {
                 RegistrarErro("Server API", "Database.cs", "GravarInformacoesInstitucionais", ex.Message, string.Empty);
+                mensagem = string.Concat(ex.HResult, " -> Não foi possível salvar as informações");
                 retorno = false;
             }
 
@@ -3781,7 +3849,7 @@ namespace BlockC_Api.Classes
                             {
                                 while (myReader.Read())
                                 {
-                                    resultResponse.institutionalInformationId = Convert.ToInt16(myReader["institutionalInformationId"]);
+                                    resultResponse.institutionalInformationId = myReader["institutionalInformationId"].ToString();
                                     resultResponse.Content = myReader["Content"].ToString();
                                 }
                             }
@@ -3796,6 +3864,278 @@ namespace BlockC_Api.Classes
 
             return retorno;
         }
+
+        public Boolean TransferirLancamentoArquivo(string oldRegistryID, string newRegistryID)
+        {
+            Boolean retorno = true;
+
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Transferir_Lancamento_Arquivo", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("oldRegistryID", oldRegistryID);
+                        varComm.Parameters.AddWithValue("newRegistryID", newRegistryID);
+                        varComm.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RegistrarErro("Server API", "Database.cs", "TransferirLancamentoArquivo", ex.Message, string.Empty);
+                retorno = false;
+            }
+
+            return retorno;
+        }
+
+        public Boolean GravarAuditoria(ref string auditID, Int64 EmpresaID, int Ano, Int64 UsuarioID, ref string mensagem)
+        {
+            Boolean retorno = true;
+
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Gravar_Auditoria", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("auditID", auditID);
+                        varComm.Parameters.AddWithValue("empresaID", EmpresaID);
+                        varComm.Parameters.AddWithValue("ano", Ano);
+                        varComm.Parameters.AddWithValue("usuarioID", UsuarioID);
+
+                        using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
+                        {
+                            retorno = myReader.HasRows;
+
+                            if (myReader.HasRows)
+                            {
+                                myReader.Read();
+                                auditID = myReader["AuditoriaID"].ToString();
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                mensagem = string.Concat(ex.HResult, " -> Não foi possível salvar a auditoria");
+                RegistrarErro("Server API", "Database.cs", "GravarAuditoria", ex.Message, string.Empty);
+                retorno = false;
+            }
+
+            return retorno;
+        }
+
+        public Boolean GravarAuditoriaRegistro(string AuditID, string RegistroID)
+        {
+            Boolean retorno = true;
+
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Gravar_Auditoria_Lancamento", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("auditID", AuditID);
+                        varComm.Parameters.AddWithValue("registroID", RegistroID);
+                        varComm.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RegistrarErro("Server API", "Database.cs", "GravarAuditoriaRegistro", ex.Message, string.Empty);
+                retorno = false;
+            }
+
+            return retorno;
+        }
+
+        public Boolean BuscarAuditoriaRegistros(Int32 EmpresaID, int Ano, ref Json.GetAuditRegistryResponse auditResponse, ref string mensagem)
+        {
+            Boolean retorno = true;
+
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Buscar_Auditoria_Lancamento", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("empresaID", EmpresaID);
+                        varComm.Parameters.AddWithValue("ano", Ano);
+
+                        using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
+                        {
+                            while (myReader.Read())
+                            {
+                                auditResponse.AuditoriaID = myReader["AuditoriaID"].ToString();
+
+                                Json.GetAuditRegistryResponse.Registros reg = new Registros();
+                                reg.ID = myReader["RegID"].ToString();
+                                reg.CategoriaID = myReader["RegCategoriaID"].ToString();
+                                reg.Categoria = myReader["RegCategoria"].ToString();
+                                reg.SubCategoriaID = myReader["RegSubCategoriaID"].ToString();
+                                reg.SubCategoria = myReader["RegSubCategoria"].ToString();
+                                reg.tco2e = myReader.GetDouble(myReader.GetOrdinal("RegTco2e"));
+                                reg.RegistroStatus = myReader["RegStatus"].ToString();
+                                auditResponse.RegistrosList.Add(reg);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                mensagem = string.Concat(ex.HResult, " -> Não conseguimos buscar os registros da auditoria");
+                RegistrarErro("Server API", "Database.cs", "BuscarAuditoriaRegistros", ex.Message, string.Empty);
+                retorno = false;
+            }
+
+            return retorno;
+        }
+
+        public Boolean AtualizarLancamentoStatus(string RegistroID, string Status, ref string mensagem)
+        {
+            Boolean retorno = true;
+
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Atualizar_Lancamento_Status", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("regID", RegistroID);
+                        varComm.Parameters.AddWithValue("regStatus", Status);
+                        varComm.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                mensagem = string.Concat(ex.HResult, " -> Não foi possível atualizar o registro. Verifique os status possíveis.");
+                RegistrarErro("Server API", "Database.cs", "AtualizarLancamentoStatus", ex.Message, string.Empty);
+                retorno = false;
+            }
+
+            return retorno;
+        }
+
+        public void GravarAuditoriaArquivo(string auditoriaID, string arquivoID)
+        {
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Gravar_AuditoriaArquivo", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("auditoriaID", auditoriaID);
+                        varComm.Parameters.AddWithValue("arquivoID", arquivoID);
+                        varComm.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RegistrarErro("Server API", "Database.cs", "GravarAuditoriaArquivo", ex.Message, string.Empty);
+            }
+        }
+
+        public Boolean BuscarAuditoriaArquivo(string AuditoriaID, string certificadoID, ref Json.GetAuditCertificateResponse auditResponse, ref string mensagem)
+        {
+            Boolean retorno = true;
+
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Buscar_Auditoria_Arquivo", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("AuditoriaID", AuditoriaID);
+                        varComm.Parameters.AddWithValue("CertificadoID", certificadoID);
+
+                        using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
+                        {
+                            while (myReader.Read())
+                            {
+                                Classes.Json.GetAuditCertificateResponse.Certificates doc = new GetAuditCertificateResponse.Certificates();
+                                doc.CertificadoID = myReader["ArquivoID"].ToString();
+                                doc.ArquivoNome = myReader["ArquivoNome"].ToString();
+                                doc.ArquivoContentType = myReader["ArquivoContentType"].ToString();
+                                doc.ArquivoExtensao = myReader["ArquivoExtensao"].ToString();
+                                doc.ArquivoTamanho = Convert.ToInt32(myReader["ArquivoTamanho"].ToString());
+
+                                byte[] docBytes = (byte[])myReader["ArquivoImagem"];
+                                doc.ArquivoImagem = Convert.ToBase64String(docBytes);
+
+                                auditResponse.Certificados.Add(doc);
+                            }
+
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                mensagem = string.Concat(ex.HResult, " -> Não conseguimos pesquisar os certificados");
+                RegistrarErro("Server API", "Database.cs", "BuscarAuditoriaArquivo", ex.Message, string.Empty);
+                retorno = true;
+            }
+
+            return retorno;
+        }
+
+        public Boolean DesativarAuditoriaArquivo(string AuditoriaID, string ArquivoID, ref string mensagem)
+        {
+            Boolean retorno = true;
+
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Desativar_Auditoria_Arquivo", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("AuditoriaID", AuditoriaID);
+                        varComm.Parameters.AddWithValue("ArquivoID", ArquivoID);
+                        varComm.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                mensagem = string.Concat(ex.HResult, " -> Não foi possível excluir o certificado");
+                RegistrarErro("Server API", "Database.cs", "DesativarAuditoriaArquivo", ex.Message, string.Empty);
+                retorno = false;
+            }
+
+            return retorno;
+        }
+
 
     }
 }

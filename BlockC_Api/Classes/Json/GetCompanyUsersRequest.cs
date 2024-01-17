@@ -11,8 +11,18 @@ namespace BlockC_Api.Classes.Json
         [JsonProperty("token")]
         public string Token { get; set; }
 
-        [JsonProperty("companyId")]
-        public long EmpresaID { get; set; }
+        [JsonProperty("userId", NullValueHandling = NullValueHandling.Ignore)]
+        public long UsuarioID { get; set; }
+
+        [JsonProperty("companies")]
+        public List<Companies> EmpresaLista { get; set; }
+
+
+        public partial class Companies
+        {
+            [JsonProperty("companyId")]
+            public long EmpresaID { get; set; }
+        }
 
     }
 }
