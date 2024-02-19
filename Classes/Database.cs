@@ -4136,6 +4136,47 @@ namespace BlockC_Api.Classes
             return retorno;
         }
 
+        public Boolean GravarCertificadoEnergiaRenovavel(string companyRegistryNumber, string companyName, string hash,
+            int certificadoTipo, int anoReferencia, string statusRegistro, ref int certificadoEnergiaRenovavelID)
+        {
+            Boolean retorno = true;
 
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Gravar_CertificadoEnergiaRenovavel", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("CompanyRegistryNumber", companyRegistryNumber);
+                        varComm.Parameters.AddWithValue("CompanyName", companyName);
+                        varComm.Parameters.AddWithValue("Hash", hash);
+                        varComm.Parameters.AddWithValue("CertificadoTipo", certificadoTipo);
+                        varComm.Parameters.AddWithValue("AnoReferencia", anoReferencia);
+                        varComm.Parameters.AddWithValue("StatusRegistro", statusRegistro);
+
+                        using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
+                        {
+                            if (myReader.HasRows)
+                            {
+                                myReader.Read();
+
+                                Int32.TryParse(myReader["CertificadoEnergiaRenovavelID"].ToString(), out certificadoEnergiaRenovavelID);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RegistrarErro("Server API", "Database.cs", "GravarCertificadoEnergiaRenovavel", ex.Message, string.Empty);
+                retorno = false;
+            }
+
+            return retorno;
+
+        }
     }
 }
