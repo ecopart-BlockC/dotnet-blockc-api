@@ -4136,6 +4136,64 @@ namespace BlockC_Api.Classes
             return retorno;
         }
 
+        public Boolean BuscarCertificadoEnergiaRenovavel(string CompanyId, ref Json.GetRenewableEnergyCertificateResponse certificadoResponse, ref string mensagem)
+        {
+            Boolean retorno = true;
 
+            try
+            {
+                using (SqlConnection varConn = new SqlConnection(connString))
+                {
+                    varConn.Open();
+
+                    using (SqlCommand varComm = new SqlCommand("usp_Buscar_CertificadoEnergiaRenovavel", varConn))
+                    {
+                        varComm.CommandType = System.Data.CommandType.StoredProcedure;
+                        varComm.Parameters.AddWithValue("companyId", CompanyId);
+
+                        using (SqlDataReader myReader = varComm.ExecuteReader(CommandBehavior.CloseConnection))
+                        {
+                            if (myReader.HasRows)
+                            {
+                                while (myReader.Read())
+                                {
+                                    certificadoResponse.RenewableEnergyCertificateID = myReader["renewableEnergyCertificateID"].ToString();
+
+                                    Json.GetRenewableEnergyCertificateResponse.Certificates rec = new Json.GetRenewableEnergyCertificateResponse.Certificates();
+                                    certificadoResponse.CertificatesList = new List<GetRenewableEnergyCertificateResponse.Certificates>();
+
+                                    rec.CompanyRegistryNumber = myReader["companyRegistryNumber"].ToString();
+                                    rec.CompanyName = myReader["companyName"].ToString();
+                                    rec.CompanyId = myReader["companyId"].ToString();
+                                    rec.RazaoSocial = myReader["razaoSocial"].ToString();
+                                    rec.Hash = myReader["hash"].ToString();
+                                    rec.CertificadoId = myReader["certificadoId"].ToString();
+                                    rec.CertificadoTipo = myReader["CertificadoTipo"].ToString();
+                                    rec.ReferredYear = myReader["referredYear"].ToString();
+                                    rec.StatusRegistro = myReader["statusRegistro"].ToString();
+                                    rec.DataRegistro = myReader["dataRegistro"].ToString();
+
+                                    certificadoResponse.CertificatesList.Add(rec);
+                                }
+                            }
+                            else
+                            {
+                                certificadoResponse.RenewableEnergyCertificateID = "0";
+                                certificadoResponse.CertificatesList = new List<GetRenewableEnergyCertificateResponse.Certificates>();
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                mensagem = string.Concat(ex.HResult, " -> Não conseguimos buscar os registros de RECs");
+                RegistrarErro("Server API", "Database.cs", "BuscarCertificadoEnergiaRenovavel", ex.Message, string.Empty);
+                retorno = false;
+            }
+
+            return retorno;
+
+        }
     }
 }
